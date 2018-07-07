@@ -61,11 +61,11 @@ module.exports = {
                 }
             }
             if (task.assignedToId === null) {
-                let transporters = _.filter(Game.creeps, (creep) => creep.memory.role == 'transporter');
+                let transporters = _.filter(Game.creeps, (creep) => (creep.memory.role == 'transporter' && creep.memory.task === null));
                 for (var transporterId in transporters) {
-                    if (!transporters[transporterId].memory.task) {
+                    if (transporters[transporterId].memory.task === null) {
                         // Give it a task
-                        transporters[transporterId].memory.task = task.id;
+                        transporters[transporterId].memory.task = task;
                         transporters[transporterId].say("Got transport task: "+task.id);
                         Memory.transport.tasks[taskKey].assignedToId = transporters[transporterId].id;
                     }

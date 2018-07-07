@@ -4,6 +4,9 @@ var roleTransporter = {
     run: function(creep)
     {
         let action = false;
+        if (typeof creep.memory.task == 'undefined') {
+            creep.memory.task === null;
+        }
         if (creep.memory.task) {
             let source = Game.getObjectById(creep.memory.task.sourceId);
             // console.log(creep.name+" - "+JSON.stringify(creep.memory.task));
@@ -35,12 +38,6 @@ var roleTransporter = {
                 if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#FF0000'}});
                 }
-            } else {
-                if (creep.pos.x == 39 && creep.pos.y == 26){
-                    creep.drop(RESOURCE_ENERGY);
-                } else {
-                    creep.moveTo(39,26, {visualizePathStyle: {stroke: '#FFFF00'}});
-                }
             }
         } else if (action === false) {
             creep.moveTo(Game.spawns['Spawn']);
@@ -62,7 +59,7 @@ var roleTransporter = {
     {
         delete Memory.transport.tasks[creep.memory.task.id]
         creep.say('Completed task '+creep.memory.task.id);
-        delete creep.memory.task;
+        creep.memory.task === null;
     }
 };
 

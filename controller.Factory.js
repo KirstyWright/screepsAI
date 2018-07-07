@@ -25,34 +25,34 @@ module.exports = {
         }
         let transporters = _.filter(Game.creeps, (creep) => creep.memory.role == 'transporter');
         debugString += ' T:'+transporters.length;
-        if (transporters.length < 5) {
+        if (transporters.length < 6) {
             this.createCreep('transporter');
         }
         let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
         debugString += ' B:'+builders.length;
-        if (builders.length < 5) {
+        if (builders.length < 2) {
             this.createCreep('builder');
         }
         let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
         debugString += ' U:'+upgraders.length;
-        if (upgraders.length < 5) {
+        if (upgraders.length < 2) {
             this.createCreep('upgrader');
         }
         // console.log(debugString);
     },
     roles: {
-        'harvester': [WORK, WORK, MOVE],
-        'transporter': [MOVE,CARRY,CARRY,CARRY,CARRY,CARRY],
-        'builder': [MOVE,WORK,WORK,CARRY],
-        'upgrader': [MOVE,WORK,WORK,CARRY]
+        'harvester': [MOVE,WORK,WORK,WORK],
+        'transporter': [MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],
+        'builder': [MOVE,WORK,WORK,CARRY,CARRY],
+        'upgrader': [MOVE,MOVE,WORK,WORK,CARRY,CARRY]
     },
     createCreep: function(type)
     {
         let spawn = Game.spawns['Spawn'];
-        if (spawn.energy < 300 || this.creating) {
+        if (spawn.room.energyAvailable < 400 || this.creating) {
             return;
         }
-        response = spawn.createCreep(this.roles[type],undefined,{role:type});
+        response = spawn.createCreep(this.roles[type],undefined,{role:type,task:null});
         if (isNaN(response)) {
             console.log('Creating creep ('+type+') '+response);
             this.creating = true;
