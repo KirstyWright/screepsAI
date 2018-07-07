@@ -3,11 +3,17 @@ var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 var roleTransporter = require('role.transporter');
 var controllerFactory = require('controller.Factory');
+var controllerMining = require('controller.mining');
+var controllerTransport = require('controller.transport');
 
 module.exports.loop = function () {
     controllerFactory.run();
+    controllerMining.run();
+    controllerTransport.run();
+
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
+        new RoomVisual(creep.room.name).text(creep.memory.role, creep.pos.x+1, creep.pos.y, {color: 'white', font: 0.5});
         if(creep.memory.role == 'harvester') {
             roleHarvester.run(creep);
         }
@@ -20,14 +26,5 @@ module.exports.loop = function () {
         if(creep.memory.role == 'transporter') {
             roleTransporter.run(creep);
         }
-    }
-    return;
-    try {
-        let source = Game.creeps['Elizabeth'].room.find(FIND_SOURCES)[1];
-        // check adjecent squares
-        let posToCheck = new RoomPosition(source.pos.x+1, source.pos.y, source.pos.roomName);
-        // console.log(JSON.stringify(posToCheck.look()));
-    } catch(e) {
-        console.log(e);
     }
 }

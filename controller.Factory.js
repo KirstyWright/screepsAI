@@ -8,6 +8,7 @@
  */
 
 module.exports = {
+    creating: false,
     run: function()
     {
         for(var name in Memory.creeps) {
@@ -16,40 +17,45 @@ module.exports = {
                 console.log('Clearing non-existing creep memory:', name);
             }
         }
-
+        let debugString = "";
         let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-        if (harvesters.length < 2) {
+        debugString += 'H:'+harvesters.length;
+        if (harvesters.length < 4) {
             this.createCreep('harvester');
         }
         let transporters = _.filter(Game.creeps, (creep) => creep.memory.role == 'transporter');
-        if (transporters.length < 3) {
+        debugString += ' T:'+transporters.length;
+        if (transporters.length < 5) {
             this.createCreep('transporter');
         }
         let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-        if (builders.length < 2) {
+        debugString += ' B:'+builders.length;
+        if (builders.length < 5) {
             this.createCreep('builder');
         }
         let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-        if (upgraders.length < 2) {
+        debugString += ' U:'+upgraders.length;
+        if (upgraders.length < 5) {
             this.createCreep('upgrader');
         }
-
+        // console.log(debugString);
     },
     roles: {
         'harvester': [WORK, WORK, MOVE],
-        'transporter': [MOVE,WORK,CARRY,CARRY,CARRY],
+        'transporter': [MOVE,CARRY,CARRY,CARRY,CARRY,CARRY],
         'builder': [MOVE,WORK,WORK,CARRY],
         'upgrader': [MOVE,WORK,WORK,CARRY]
     },
     createCreep: function(type)
     {
         let spawn = Game.spawns['Spawn'];
-        if (spawn.energy < 300) {
+        if (spawn.energy < 300 || this.creating) {
             return;
         }
         response = spawn.createCreep(this.roles[type],undefined,{role:type});
         if (isNaN(response)) {
-            console.log('Creating creep ('+type+')');
+            console.log('Creating creep ('+type+') '+response);
+            this.creating = true;
         } else {
             console.log('Error creating creep: '+response);
         }
