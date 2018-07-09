@@ -6,6 +6,7 @@ var roles = {
 
 Creep.prototype.run = function()
 {
+    new RoomVisual(this.room.name).text(this.memory.role, this.pos.x+1, this.pos.y, {color: 'white', font: 0.4});
     roles[this.memory.role].run(this);
 };
 

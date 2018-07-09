@@ -4,4 +4,6 @@
 * * Progress to more harvesters depending on no of sources
 * * Progress to upgraders & builders
 
-* Move harvester logic into harvester prototype or a role
+* Container mining
+* * Drop mining to start
+* * Container mining when able
