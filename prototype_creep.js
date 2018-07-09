@@ -17,10 +17,12 @@ Creep.prototype.getEnergy = function(useContainer, useSource)
         var containers = this.room.find(FIND_STRUCTURES, { filter: (i) => {return (i.structureType == STRUCTURE_CONTAINER)}});
         if (containers.length > 0) {
             // there is a container
-            container = containers[0];
             this.memory.sourceId = null;
-            if(this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.moveTo(container, {visualizePathStyle: {stroke: '#ffaa00'}});
+            if (containers[0].energy > 0) {
+                container = containers[0];
+                if(this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(container, {visualizePathStyle: {stroke: '#ffaa00'}});
+                }
             }
         }
     }
