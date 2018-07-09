@@ -26,7 +26,6 @@ module.exports = {
         //     harvesters[id].memory.assignment = null;
         // }
 
-
         for (var key in Memory.mining.spots) {
             for (var harvesterKey in Memory.mining.spots[key].harvesters) {
                 if (!Game.getObjectById(Memory.mining.spots[key].harvesters[harvesterKey])) {

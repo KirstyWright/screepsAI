@@ -13,35 +13,40 @@ module.exports = {
     {
         for(var name in Memory.creeps) {
             if(!Game.creeps[name]) {
+
                 delete Memory.creeps[name];
                 console.log('Clearing non-existing creep memory:', name);
             }
         }
         let debugString = "";
         let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-        debugString += 'H:'+harvesters.length;
         if (harvesters.length < 4) {
             this.createCreep('harvester');
         }
-        let transporters = _.filter(Game.creeps, (creep) => creep.memory.role == 'transporter');
-        debugString += ' T:'+transporters.length;
-        if (transporters.length < 6) {
-            this.createCreep('transporter');
-        }
+        // let transporters = _.filter(Game.creeps, (creep) => creep.memory.role == 'transporter');
+        // debugString += ' T:'+transporters.length;
+        // if (transporters.length < 6) {
+        //     this.createCreep('transporter');
+        // }
         let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
         debugString += ' B:'+builders.length;
-        if (builders.length < 2) {
+        if (builders.length < 1) {
             this.createCreep('builder');
         }
         let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
         debugString += ' U:'+upgraders.length;
-        if (upgraders.length < 2) {
+        if (upgraders.length < 1) {
             this.createCreep('upgrader');
         }
         // console.log(debugString);
+        debugString += 'H:'+harvesters.length;
+        if (harvesters.length < 8) {
+            this.createCreep('harvester');
+        }
     },
     roles: {
-        'harvester': [MOVE,WORK,WORK,WORK],
+        'harvester': [MOVE,CARRY,CARRY,WORK],
+        // 'harvester': [MOVE,WORK,WORK,WORK],
         'transporter': [MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],
         'builder': [MOVE,WORK,WORK,CARRY,CARRY],
         'upgrader': [MOVE,MOVE,WORK,WORK,CARRY,CARRY]
@@ -49,7 +54,7 @@ module.exports = {
     createCreep: function(type)
     {
         let spawn = Game.spawns['Spawn'];
-        if (spawn.room.energyAvailable < 400 || this.creating) {
+        if (spawn.room.energyAvailable < 300 || this.creating) {
             return;
         }
         response = spawn.createCreep(this.roles[type],undefined,{role:type,task:null});
