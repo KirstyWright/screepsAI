@@ -1,0 +1,13 @@
+{
+  "name": "screeps-ai",
+  "version": "1.0.0",
+  "description": "Simple ai for screeps.",
+  "main": "main.js",
+  "repository": "git@github.com:KirstyWright/screepsAI.git",
+  "author": "KirstyWright <kirsty@evecmdr.com>",
+  "license": "MIT",
+  "dependencies": {
+    "grunt": "^1.0.3",
+    "grunt-screeps": "^1.4.0"
+  }
+}

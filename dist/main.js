@@ -1,5 +1,5 @@
 require('prototype_creep');
-
+//apples
 module.exports.loop = function () {
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
