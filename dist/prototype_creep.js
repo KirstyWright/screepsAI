@@ -17,21 +17,19 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
     if (useContainer) {
         var containers = this.room.find(FIND_STRUCTURES, {
             filter: (i) => {
-                return (i.structureType == STRUCTURE_CONTAINER)
+                return (i.structureType == STRUCTURE_CONTAINER && i.store.energy > 0)
             }
         });
         if (containers.length > 0) {
             // there is a container
             this.memory.sourceId = null;
-            if (containers[0].energy > 0) {
-                container = containers[0];
-                if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(container, {
-                        visualizePathStyle: {
-                            stroke: '#ffaa00'
-                        }
-                    });
-                }
+            container = containers[0];
+            if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                this.moveTo(container, {
+                    visualizePathStyle: {
+                        stroke: '#ffaa00'
+                    }
+                });
             }
         }
     }
