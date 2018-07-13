@@ -7,3 +7,4 @@
 * Container mining
 * * Drop mining to start
 * * Container mining when able
+* * Couriers to move from container to spawn / spawn container
