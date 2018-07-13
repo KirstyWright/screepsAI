@@ -1,4 +1,5 @@
 require('prototype_creep');
+let build = require('build');
 //apples
 module.exports.loop = function() {
     for (var name in Memory.creeps) {
@@ -42,4 +43,7 @@ module.exports.loop = function() {
             });
         }
     }
+
+    build.run(spawn);
+
 }

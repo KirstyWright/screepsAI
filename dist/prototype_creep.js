@@ -3,9 +3,14 @@ var roles = {
     'upgrader': require('role.upgrader'),
     'builder': require('role.builder')
 }
+var roleEmoji = {
+    'harvester':'⛏️',
+    'upgrader':"🔬",
+    'builder':'🛠️'
+}
 
 Creep.prototype.run = function() {
-    new RoomVisual(this.room.name).text(this.memory.role, this.pos.x + 1, this.pos.y, {
+    new RoomVisual(this.room.name).text(roleEmoji[this.memory.role], this.pos.x + 0.8, this.pos.y+0.2, {
         color: 'white',
         font: 0.4
     });
