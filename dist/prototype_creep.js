@@ -21,12 +21,16 @@ Creep.prototype.run = function() {
     roles[this.memory.role].run(this);
 };
 
+Creep.prototype.log = function (content) {
+    console.log("Creep:" + this.name + ': ' + String(content));
+};
+
 Creep.prototype.getEnergy = function(useContainer, useSource) {
     let container;
     if (useContainer) {
         var containers = this.room.find(FIND_STRUCTURES, {
             filter: (i) => {
-                return (i.structureType == STRUCTURE_CONTAINER && i.store.energy > 0)
+                return ((i.structureType == STRUCTURE_CONTAINER || (i.structureType == STRUCTURE_SPAWN && i.store.energy > 250) )&& i.store.energy > 0)
             }
         });
         if (containers.length > 0) {

@@ -39,7 +39,7 @@ module.exports = {
             }
 
         } else {
-            creep.getEnergy(true, true);
+            creep.getEnergy(true, false);
         }
     }
 };

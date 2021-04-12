@@ -3,8 +3,7 @@ module.exports = {
     run: function(creep) {
         if (creep.memory.emptying && creep.carry.energy == 0) {
             creep.memory.emptying = false;
-        }
-        if (!creep.memory.emptying && creep.carry.energy == creep.carryCapacity) {
+        } else if (creep.carry.energy == creep.carryCapacity) {
             creep.memory.emptying = true;
         }
 
@@ -12,11 +11,12 @@ module.exports = {
             // check crew
             if (!this.hasCrew(creep)) {
                 this.assignCrew(creep);
+                return;
             }
             // waiting for miner
             let miner = Game.getObjectById(Memory.miningCrews[creep.memory.teamId].minerId);
             if (!miner) {
-                console.log('Waiting for miner');
+                creep.log('Waiting for miner');
                 return;
             }
 

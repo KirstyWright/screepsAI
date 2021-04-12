@@ -34,7 +34,6 @@ Spawn.prototype.attemptSpawning = function() {
         let response = this.spawnCreep(creep.parts,this.generateCreepName(creep.data.role),{
             memory:creep.data
         });
-        console.log(response);
         if (response < 0) {
             this.room.memory.spawnQueue.unshift(creep);
         }
