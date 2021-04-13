@@ -4,13 +4,15 @@ var roles = {
     'builder': require('role.builder'),
     'miner': require('role.miner'),
     'hauler': require('role.hauler'),
+    'claimer': require('role.claimer'),
 }
 var roleEmoji = {
     'harvester':'⛏️',
     'upgrader':"🔬",
     'builder':'🛠️',
     'miner':'⚠️',
-    'hauler':'🚚'
+    'hauler':'🚚',
+    'claimer': '🏴‍☠️'
 }
 
 Creep.prototype.run = function() {

@@ -15,6 +15,9 @@ var roles = {
     },
     'hauler': {
         250: [MOVE, CARRY, CARRY, CARRY, CARRY]
+    },
+    'claimer': {
+        250: [MOVE, MOVE, CLAIM, CARRY, CARRY]
     }
 };
 
