@@ -20,44 +20,46 @@ module.exports = {
             let creep = creepsInRoom[key];
             roles[creep.memory.role] = roles[creep.memory.role] + 1;
         }
-
         for (key in Spawner.room.memory.spawnQueue) {
             let role = Spawner.room.memory.spawnQueue[key].data.role;
             roles[role] = roles[role] + 1;
         }
 
         for (key in roles) {
-            console.log(key + ':' + roles[key]);
+            // console.log(key + ':' + roles[key]);
         }
-
         if (roles['harvester'] < 1) {
             Spawner.queueCreep({
                 role:'harvester'
             })
+            console.log('Queueing harvester');
         }
         if (roles['miner'] < 2) {
             Spawner.queueCreep({
                 role:'miner',
                 teamId: 1
             });
+            console.log('Queueing miner');
         }
         if (roles['hauler'] < 2) {
             Spawner.queueCreep({
                 role:'hauler',
                 teamId: 1
             })
+            console.log('Queueing hauler');
         }
         if (roles['builder'] < 2) {
             Spawner.queueCreep({
                 role:'builder'
             })
+            console.log('Queueing builder');
         }
         if (roles['upgrader'] < 2) {
             Spawner.queueCreep({
                 role:'upgrader'
             })
+            console.log('Queueing upgrader');
         }
-
     },
     getWhichCreepTierToSpawn: function(energyAvailable, role) {
 

@@ -20,6 +20,19 @@ Creep.prototype.run = function() {
         color: 'white',
         font: 0.4
     });
+
+    if (!this.memory.respawn_complete) {
+        let spawn = Game.spawns[this.memory.spawner]
+        if (!spawn) {
+            this.memory.respawn_complete = true;
+            this.log("Unable to complete respawn")
+        }
+        spawn.room.memory.spawnQueue.splice(spawn.room.memory.spawnQueue.findIndex((element) => {
+            return element.name === this.name;
+        }), 1);
+        this.memory.respawn_complete = true;
+    }
+
     roles[this.memory.role].run(this);
 };
 
