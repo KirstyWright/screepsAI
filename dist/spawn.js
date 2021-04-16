@@ -34,17 +34,15 @@ module.exports = {
             })
             console.log('Queueing harvester');
         }
-        if (roles['miner'] < 2) {
+        if (roles['miner'] < 3) {
             Spawner.queueCreep({
-                role:'miner',
-                teamId: 1
+                role:'miner'
             });
             console.log('Queueing miner');
         }
-        if (roles['hauler'] < 2) {
+        if (roles['hauler'] < Math.ceil(roles['miner'])) {
             Spawner.queueCreep({
-                role:'hauler',
-                teamId: 1
+                role:'hauler'
             })
             console.log('Queueing hauler');
         }
@@ -54,7 +52,7 @@ module.exports = {
             })
             console.log('Queueing builder');
         }
-        if (roles['upgrader'] < 2) {
+        if (roles['upgrader'] < 4) {
             Spawner.queueCreep({
                 role:'upgrader'
             })

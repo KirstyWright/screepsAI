@@ -5,6 +5,7 @@ var roles = {
     'miner': require('role.miner'),
     'hauler': require('role.hauler'),
     'claimer': require('role.claimer'),
+    'scout': require('role.scout'),
 }
 var roleEmoji = {
     'harvester':'⛏️',
@@ -12,7 +13,8 @@ var roleEmoji = {
     'builder':'🛠️',
     'miner':'⚠️',
     'hauler':'🚚',
-    'claimer': '🏴‍☠️'
+    'claimer': '🏴‍☠️',
+    'scout': '🔭'
 }
 
 Creep.prototype.run = function() {
@@ -20,12 +22,13 @@ Creep.prototype.run = function() {
         color: 'white',
         font: 0.4
     });
-
+    this.memory.manager_id = 0;
     if (!this.memory.respawn_complete) {
         let spawn = Game.spawns[this.memory.spawner]
         if (!spawn) {
-            this.memory.respawn_complete = true;
+            // this.memory.respawn_complete = true;
             this.log("Unable to complete respawn")
+            return
         }
         spawn.room.memory.spawnQueue.splice(spawn.room.memory.spawnQueue.findIndex((element) => {
             return element.name === this.name;
@@ -38,6 +41,10 @@ Creep.prototype.run = function() {
 
 Creep.prototype.log = function (content) {
     console.log("Creep:" + this.name + ': ' + String(content));
+};
+
+Creep.prototype.getManager = function () {
+    return Memory.manager[0];
 };
 
 Creep.prototype.getEnergy = function(useContainer, useSource) {
@@ -77,6 +84,19 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
             this.memory.sourceId = sourceId;
         }
         if (this.memory.sourceId) {
+            let sources = this.getManager().sources;
+            for (let key in sources) {
+                if (sources[key].sourceId !== this.memory.sourceId) {
+                    continue;
+                }
+                if (this.memory.role != 'miner') {
+                    break;
+                }
+                if (!sources[key].miners.includes(this.name)) {
+                    this.getManager().sources[key].miners.push(this.name);
+                }
+            }
+
             let target = Game.getObjectById(this.memory.sourceId);
             if (this.harvest(target) == ERR_NOT_IN_RANGE) {
                 this.moveTo(target, {
