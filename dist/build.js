@@ -34,26 +34,32 @@ module.exports = {
             return costs;
         }
     },
-    run: function(spawn) {
-        if (spawn.room.memory.buildQueue == undefined) {
-            spawn.room.memory.buildQueue = [];
+    run: function(manager) {
+
+        if (manager.memory.buildQueue == undefined) {
+            manager.memory.buildQueue = [];
         }
-        if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.id == spawn.room.id).length > 0 && this.getCurrentSites(spawn) < 2) {
-            this.createRoads(spawn);
-            this.buildExtensions(spawn);
-        }
+        // if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.id == manager.room.id).length > 0 && this.getCurrentSites(spawn) < 2) {
+            this.createRoads(manager);
+            this.buildExtensions(manager);
+        // }
     },
-    getCurrentSites: function(spawn) {
-        return spawn.room.find(FIND_CONSTRUCTION_SITES);
+    getCurrentSites: function(manager) {
+        return manager.room.find(FIND_CONSTRUCTION_SITES);
     },
-    createRoads(spawn) {
-        let roads = spawn.room.find(FIND_STRUCTURES, {
+    createRoads(manager) {
+        let roads = manager.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_ROAD;
             }
         });
+        let search = manager.room.find(FIND_MY_STRUCTURES, {
+            filter: { structureType: STRUCTURE_SPAWN }
+        });
+        let spawn = search[0];
         // roads to sources
-        let sources = spawn.room.find(FIND_SOURCES);
+        let sources = manager.memory.sources;
+        // let sources = manager.room.find(FIND_SOURCES);
         for (let key in sources) {
             let pathFinder = PathFinder.search(sources[key].pos, {
                 pos: spawn.pos,
@@ -61,14 +67,16 @@ module.exports = {
             });
             for (var pathKey in pathFinder.path) {
                 let pos = pathFinder.path[pathKey];
-                if (!pos.lookFor(LOOK_STRUCTURES).length && !pos.lookFor(LOOK_CONSTRUCTION_SITES).length && this.getCurrentSites(spawn) < 2) {
-                    spawn.room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+                if (!pos.lookFor(LOOK_STRUCTURES).length && !pos.lookFor(LOOK_CONSTRUCTION_SITES).length && this.getCurrentSites(manager) < 2) {
+                    if (pos.roomName == spawn.room.name) {
+                        manager.room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+                    }
                 }
             }
         }
 
         // roads to controller
-        let controller = spawn.room.find(FIND_STRUCTURES, {
+        let controller = manager.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_CONTROLLER;
             }
@@ -77,23 +85,39 @@ module.exports = {
         for (var pathKey in pathToController.path) {
             let pos = pathToController.path[pathKey];
             if (!pos.lookFor(LOOK_STRUCTURES).length && !pos.lookFor(LOOK_CONSTRUCTION_SITES).length) {
-                spawn.room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
-                // new RoomVisual(spawn.room.name).circle(pos,{fill:'orange'});
+                manager.room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
             }
         }
 
         let pathFinder = PathFinder.search(controller.pos, roads);
     },
-    buildExtensions: function(spawn) {
+    buildExtensions: function(manager) {
         // extensions build
-        let currentExtensions = spawn.room.find(FIND_STRUCTURES, {
+        let search = manager.room.find(FIND_MY_STRUCTURES, {
+            filter: { structureType: STRUCTURE_SPAWN }
+        });
+        let spawn = search[0];
+        let currentExtensions = manager.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_EXTENSION;
             }
         });
         let flag = false;
-        let areaToSearch = 1;
-        if (currentExtensions.length < 5 && this.getCurrentSites(spawn) < 1) {
+        let areaToSearch = 3;
+
+        let extensionsMap = {
+            0: 0,
+            1: 0,
+            2: 5,
+            3: 10,
+            4: 20,
+            5: 30,
+            6: 40,
+            7: 50,
+            8: 60
+        };
+        let numberOfExtensionsAvailable = extensionsMap[manager.room.controller.level]
+        if (currentExtensions.length < numberOfExtensionsAvailable && this.getCurrentSites(manager).length < 2) {
             for (var x = (spawn.pos.x - areaToSearch); x < (spawn.pos.x + areaToSearch); x++) {
                 if (flag) {
                     break;

@@ -1,28 +1,36 @@
 module.exports = {
 
     run: function(creep) {
-        if (creep.memory.emptying && creep.carry.energy == 0) {
+        if (creep.memory.emptying && creep.store.getUsedCapacity() == 0) {
             creep.memory.emptying = false;
-        } else if (creep.carry.energy == creep.carryCapacity) {
+        } else if (creep.store.getFreeCapacity(RESOURCE_ENERGY) <= 0) {
             creep.memory.emptying = true;
         }
 
         if (!creep.memory.emptying) {
             if (creep.memory.target) {
                 let pos = new RoomPosition(creep.memory.target.x, creep.memory.target.y, creep.memory.target.roomName)
-                let energy = pos.lookFor(LOOK_ENERGY)[0];
-                if (energy) {
-                    let pickup = creep.pickup(energy);
-                    if (pickup == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(energy, {
-                            visualizePathStyle: {
-                                stroke: '#00FF00'
-                            }
-                        });
-                    }
+                if (pos.roomName !== creep.room.name) {
+                    creep.moveTo(pos, {
+                        visualizePathStyle: {
+                            stroke: '#00FF00'
+                        }
+                    });
                 } else {
-                    creep.memory.target = false;
-                    creep.log('Previous energy soure depleted')
+                    let energy = pos.lookFor(LOOK_ENERGY)[0];
+                    if (energy) {
+                        let pickup = creep.pickup(energy);
+                        if (pickup == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(energy, {
+                                visualizePathStyle: {
+                                    stroke: '#00FF00'
+                                }
+                            });
+                        }
+                    } else {
+                        creep.memory.target = false;
+                        // creep.log('Previous energy soure depleted')
+                    }
                 }
             } else {
                 let list = creep.room.find(FIND_DROPPED_RESOURCES, {
@@ -44,7 +52,7 @@ module.exports = {
                 });
                 if (list.length > 0) {
                     creep.memory.target = list[0].pos;
-                    creep.log('Moving to new resource location x:'+creep.memory.target.x + ', y:' + creep.memory.target.y +', room:' + creep.memory.target.roomName)
+                    // creep.log('Moving to new resource location x:'+creep.memory.target.x + ', y:' + creep.memory.target.y +', room:' + creep.memory.target.roomName)
                 }
             }
         } else {

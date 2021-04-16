@@ -1,10 +1,9 @@
 module.exports = {
 
     run: function(creep) {
-        if (creep.memory.emptying && creep.carry.energy == 0) {
+        if (creep.memory.emptying && creep.store.getUsedCapacity() == 0) {
             creep.memory.emptying = false;
-        }
-        if (!creep.memory.emptying && creep.carry.energy == creep.carryCapacity) {
+        } else if (creep.store.getFreeCapacity(RESOURCE_ENERGY) <= 0) {
             creep.memory.emptying = true;
         }
 

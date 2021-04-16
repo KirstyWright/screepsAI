@@ -24,23 +24,27 @@ var roles = {
     },
     'claimer': {
         800: [MOVE, MOVE, CLAIM, CARRY, CARRY]
+    },
+    'milita': {
+        490: [TOUGH, TOUGH, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK]
     }
 };
 
 Spawn.prototype.queueCreep = function(data) {
-    if (this.room.memory.spawnQueue == undefined) {
-        this.room.memory.spawnQueue = [];
+    if (this.manager.memory.spawnQueue == undefined) {
+        this.manager.memory.spawnQueue = [];
     }
-    this.room.memory.spawnQueue.push({
-        parts:roles[data.role][250],
+    data.managerId = this.manager.id;
+    this.manager.memory.spawnQueue.push({
+        parts: roles[data.role][250],
         role: data.role,
-        data:data
+        data: data
     });
 }
 Spawn.prototype.attemptSpawning = function() {
-    if (this.room.memory.spawnQueue.length > 0) {
-        for (key in this.room.memory.spawnQueue) {
-            let creep = this.room.memory.spawnQueue[key];
+    if (this.manager.memory.spawnQueue.length > 0) {
+        for (key in this.manager.memory.spawnQueue) {
+            let creep = this.manager.memory.spawnQueue[key];
             if (creep.spawned) {
                 continue;
             }
@@ -49,36 +53,36 @@ Spawn.prototype.attemptSpawning = function() {
             creep.data.spawner = this.name;
             if (creep.role && roles[creep.role]) {
 
-            let sortable = []
-            for (cost in roles[creep.role]) {
-                sortable.push({
-                    "cost": cost,
-                    "creep": roles[creep.role][cost]
-                })
-            }
-
-            sortable.sort(function(a, b) {
-                return a["cost"] < b["cost"];
-            });
-
-            for (key in sortable) {
-                if (sortable[key].cost <= this.room.energyAvailable) {
-                    response = this.spawnCreep(roles[creep.role][sortable[key].cost], name,{
-                        memory: creep.data
-                    });
-                    break;
+                let sortable = []
+                for (cost in roles[creep.role]) {
+                    sortable.push({
+                        "cost": cost,
+                        "creep": roles[creep.role][cost]
+                    })
                 }
-            }
+
+                sortable.sort(function(a, b) {
+                    return a["cost"] < b["cost"];
+                });
+
+                for (key in sortable) {
+                    if (sortable[key].cost <= this.room.energyAvailable) {
+                        response = this.spawnCreep(roles[creep.role][sortable[key].cost], name, {
+                            memory: creep.data
+                        });
+                        break;
+                    }
+                }
             } else {
-                response = this.spawnCreep(creep.parts, name,{
-                    memory:creep.data
+                response = this.spawnCreep(creep.parts, name, {
+                    memory: creep.data
                 });
             }
             if (response == 0) {
                 creep.spawned = true;
                 creep.name = name;
                 creep.spawner = this.name;
-                this.room.memory.spawnQueue[0] = creep;
+                this.manager.memory.spawnQueue[0] = creep;
             }
             break;
         }

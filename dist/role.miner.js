@@ -43,11 +43,11 @@ module.exports = {
                     });
                 }
             } else {
-                console.log(creep.moveTo(new RoomPosition(cachedSource.pos.x, cachedSource.pos.y, cachedSource.pos.roomName), {
+                creep.moveTo(new RoomPosition(cachedSource.pos.x, cachedSource.pos.y, cachedSource.pos.roomName), {
                     visualizePathStyle: {
                         stroke: '#ffaa00'
                     }
-                }));
+                });
             }
         }
     }

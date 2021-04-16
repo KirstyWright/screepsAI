@@ -1,8 +1,7 @@
 require('prototype_creep');
 require('prototype_spawner');
-let build = require('build');
+let manager = require('manager');
 let spawnModule = require('spawn');
-let miningModule = require('mining');
 //apples
 module.exports.loop = function() {
     for (var name in Memory.creeps) {
@@ -45,15 +44,17 @@ module.exports.loop = function() {
     //         },
     //     ]
     // }]
+    let managers = []
+    for (let key in Memory.manager) {
+        managers[key] = new manager(0);
+        managers[key].init();
+    }
+
+    for (let key in managers) {
+        managers[key].run();
+    }
 
     for (var name in Game.creeps) {
         Game.creeps[name].run();
     }
-
-    let spawn = Game.spawns['Spawn1'];
-    build.run(spawn);
-    miningModule.run(spawn);
-    spawnModule.run(spawn);
-    spawn.attemptSpawning();
-
 }

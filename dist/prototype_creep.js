@@ -6,6 +6,7 @@ var roles = {
     'hauler': require('role.hauler'),
     'claimer': require('role.claimer'),
     'scout': require('role.scout'),
+    'milita': require('role.milita'),
 }
 var roleEmoji = {
     'harvester':'⛏️',
@@ -14,7 +15,8 @@ var roleEmoji = {
     'miner':'⚠️',
     'hauler':'🚚',
     'claimer': '🏴‍☠️',
-    'scout': '🔭'
+    'scout': '🔭',
+    'milita': '⚔️'
 }
 
 Creep.prototype.run = function() {
@@ -22,7 +24,7 @@ Creep.prototype.run = function() {
         color: 'white',
         font: 0.4
     });
-    this.memory.manager_id = 0;
+
     if (!this.memory.respawn_complete) {
         let spawn = Game.spawns[this.memory.spawner]
         if (!spawn) {
@@ -30,12 +32,16 @@ Creep.prototype.run = function() {
             this.log("Unable to complete respawn")
             return
         }
-        spawn.room.memory.spawnQueue.splice(spawn.room.memory.spawnQueue.findIndex((element) => {
+        if (this.memory.managerId !== undefined) {
+            if (Memory.manager[this.memory.managerId].creeps.indexOf(this.name) == -1) {
+                Memory.manager[this.memory.managerId].creeps.push(this.name)
+            }
+        }
+        Memory.manager[this.memory.managerId].spawnQueue.splice(Memory.manager[this.memory.managerId].spawnQueue.findIndex((element) => {
             return element.name === this.name;
         }), 1);
         this.memory.respawn_complete = true;
     }
-
     roles[this.memory.role].run(this);
 };
 
