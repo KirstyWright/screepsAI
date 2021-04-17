@@ -11,8 +11,7 @@ module.exports = {
     pathfinderCostIgnoreRoads: {
         plainCost: 2,
         swampCost: 10,
-        roomCallback: function(roomName) {
-
+        roomCallback(roomName) {
             let room = Game.rooms[roomName];
             if (!room) return;
             let costs = new PathFinder.CostMatrix;
@@ -39,10 +38,10 @@ module.exports = {
         if (manager.memory.buildQueue == undefined) {
             manager.memory.buildQueue = [];
         }
-        // if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.id == manager.room.id).length > 0 && this.getCurrentSites(spawn) < 2) {
+        if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.id == manager.room.id).length > 0 && this.getCurrentSites(manager) < 2) {
             this.createRoads(manager);
             this.buildExtensions(manager);
-        // }
+        }
     },
     getCurrentSites: function(manager) {
         return manager.room.find(FIND_CONSTRUCTION_SITES);
@@ -58,34 +57,46 @@ module.exports = {
         });
         let spawn = search[0];
         // roads to sources
+        let roadsToBuild = 5;
         let sources = manager.memory.sources;
         // let sources = manager.room.find(FIND_SOURCES);
         for (let key in sources) {
-            let pathFinder = PathFinder.search(sources[key].pos, {
+            if (roadsToBuild <= 0) {
+                break;
+            }
+            let pathFinder = PathFinder.search(new RoomPosition(sources[key].pos.x, sources[key].pos.y, sources[key].pos.roomName), {
                 pos: spawn.pos,
-                range: 0
+                range: 1
             });
-            for (var pathKey in pathFinder.path) {
+            for (let pathKey in pathFinder.path) {
                 let pos = pathFinder.path[pathKey];
                 if (!pos.lookFor(LOOK_STRUCTURES).length && !pos.lookFor(LOOK_CONSTRUCTION_SITES).length && this.getCurrentSites(manager) < 2) {
                     if (pos.roomName == spawn.room.name) {
                         manager.room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+                        roadsToBuild = roadsToBuild - 1;
                     }
                 }
             }
         }
-
-        // roads to controller
-        let controller = manager.room.find(FIND_STRUCTURES, {
+        // roads to structures
+        let structures = manager.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
-                return structure.structureType == STRUCTURE_CONTROLLER;
+                return (structure.structureType == STRUCTURE_CONTROLLER
+                || structure.structureType == STRUCTURE_TOWER);
             }
-        })[0];
-        let pathToController = PathFinder.search(controller.pos, sources, this.pathfinderCostIgnoreRoads);
-        for (var pathKey in pathToController.path) {
-            let pos = pathToController.path[pathKey];
-            if (!pos.lookFor(LOOK_STRUCTURES).length && !pos.lookFor(LOOK_CONSTRUCTION_SITES).length) {
-                manager.room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+        });
+        for (let key in structures) {
+            let structure = structures[key];
+            let path = PathFinder.search(spawn, {pos: structure.pos, range: 0}, this.pathfinderCostIgnoreRoads);
+            for (let pathKey in path.path) {
+                if (roadsToBuild <= 0) {
+                    break;
+                }
+                let pos = path.path[pathKey];
+                if (!pos.lookFor(LOOK_STRUCTURES).length && !pos.lookFor(LOOK_CONSTRUCTION_SITES).length) {
+                    manager.room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+                    roadsToBuild = roadsToBuild - 1;
+                }
             }
         }
 

@@ -7,7 +7,7 @@ var roles = {
     'claimer': require('role.claimer'),
     'scout': require('role.scout'),
     'milita': require('role.milita'),
-}
+};
 var roleEmoji = {
     'harvester':'⛏️',
     'upgrader':"🔬",
@@ -17,7 +17,7 @@ var roleEmoji = {
     'claimer': '🏴‍☠️',
     'scout': '🔭',
     'milita': '⚔️'
-}
+};
 
 Creep.prototype.run = function() {
     new RoomVisual(this.room.name).text(roleEmoji[this.memory.role], this.pos.x + 0.8, this.pos.y+0.2, {
@@ -26,30 +26,43 @@ Creep.prototype.run = function() {
     });
 
     if (!this.memory.respawn_complete) {
-        let spawn = Game.spawns[this.memory.spawner]
-        if (!spawn) {
-            // this.memory.respawn_complete = true;
-            this.log("Unable to complete respawn")
-            return
-        }
-        if (this.memory.managerId !== undefined) {
+        if (this.memory.managerId != undefined) {
             if (Memory.manager[this.memory.managerId].creeps.indexOf(this.name) == -1) {
-                Memory.manager[this.memory.managerId].creeps.push(this.name)
+                Memory.manager[this.memory.managerId].creeps.push(this.name);
             }
+            Memory.manager[this.memory.managerId].spawnQueue.splice(Memory.manager[this.memory.managerId].spawnQueue.findIndex((element) => {
+                return element.name === this.name;
+            }), 1);
         }
-        Memory.manager[this.memory.managerId].spawnQueue.splice(Memory.manager[this.memory.managerId].spawnQueue.findIndex((element) => {
-            return element.name === this.name;
-        }), 1);
         this.memory.respawn_complete = true;
     }
-    roles[this.memory.role].run(this);
+
+    let moved = false;
+    if (!['scout', 'milita'].includes(this.memory.role)) {
+        // check hostiles and flee
+        let enemies = this.room.find(FIND_HOSTILE_CREEPS);
+        for (let key in enemies) {
+            if (this.pos.inRangeTo(enemies[key], 5)) {
+                let path = PathFinder.search(this.pos, enemies.map(c=>{return{pos:c.pos,range:10};}),{flee:true}).path;
+                this.moveByPath(path);
+                this.log('Running away');
+                moved = true;
+                break;
+            }
+        }
+
+        // Spawner.manager.memory.rooms
+    }
+    if (!moved) {
+        roles[this.memory.role].run(this);
+    }
 };
 
 Creep.prototype.log = function (content) {
     console.log("Creep:" + this.name + ': ' + String(content));
 };
 
-Creep.prototype.getManager = function () {
+Creep.prototype.getManagerMemory = function () {
     return Memory.manager[0];
 };
 
@@ -58,7 +71,7 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
     if (useContainer) {
         var containers = this.room.find(FIND_STRUCTURES, {
             filter: (i) => {
-                return ((i.structureType == STRUCTURE_CONTAINER || (i.structureType == STRUCTURE_SPAWN && i.store.energy > 250) )&& i.store.energy > 0)
+                return ((i.structureType == STRUCTURE_CONTAINER || (i.structureType == STRUCTURE_SPAWN && i.store.energy > 250) )&& i.store.energy > 0);
             }
         });
         if (containers.length > 0) {
@@ -90,7 +103,7 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
             this.memory.sourceId = sourceId;
         }
         if (this.memory.sourceId) {
-            let sources = this.getManager().sources;
+            let sources = this.getManagerMemory().sources;
             for (let key in sources) {
                 if (sources[key].sourceId !== this.memory.sourceId) {
                     continue;
@@ -99,7 +112,7 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
                     break;
                 }
                 if (!sources[key].miners.includes(this.name)) {
-                    this.getManager().sources[key].miners.push(this.name);
+                    this.getManagerMemory().sources[key].miners.push(this.name);
                 }
             }
 
@@ -113,4 +126,4 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
             }
         }
     }
-}
+};

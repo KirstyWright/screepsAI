@@ -33,30 +33,27 @@ module.exports = {
                     }
                 }
             } else {
-                let list = creep.room.find(FIND_DROPPED_RESOURCES, {
-                    filter: (d) => {
-                        return d.resourceType == RESOURCE_ENERGY
+                let list = [];
+                for (let key in creep.getManagerMemory().rooms) {
+                    let roomName = creep.getManagerMemory().rooms[key];
+                    if (Game.rooms[roomName] != undefined) {
+                        list = list.concat(Game.rooms[roomName].find(FIND_DROPPED_RESOURCES, {
+                            filter: (d) => {
+                                return d.resourceType == RESOURCE_ENERGY;
+                            }
+                        }));
                     }
-                });
-                let secondRoom = Game.rooms["W43N29"];
-                if (secondRoom) {
-                    let list2 = secondRoom.find(FIND_DROPPED_RESOURCES, {
-                        filter: (d) => {
-                            return d.resourceType == RESOURCE_ENERGY
-                        }
-                    });
-                    list = list.concat(list2)
                 }
                 list = list.sort((a, b) => {
-                    return a.amount < b.amount
+                    return a.amount < b.amount;
                 });
                 if (list.length > 0) {
                     creep.memory.target = list[0].pos;
-                    // creep.log('Moving to new resource location x:'+creep.memory.target.x + ', y:' + creep.memory.target.y +', room:' + creep.memory.target.roomName)
+                    creep.log('Moving to new resource location x:'+creep.memory.target.x + ', y:' + creep.memory.target.y +', room:' + creep.memory.target.roomName);
                 }
             }
         } else {
-            let targetRoom = Game.rooms['W42N29'];
+            let targetRoom = Game.rooms[creep.getManagerMemory().room];
             var targets = targetRoom.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
@@ -65,7 +62,7 @@ module.exports = {
             });
             var containers = targetRoom.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return structure.structureType == STRUCTURE_CONTAINER && structure.store.energy < structure.storeCapacity
+                    return structure.structureType == STRUCTURE_CONTAINER && structure.store.energy < structure.storeCapacity;
                 }
             });
             if (targets.length > 0) {
@@ -85,7 +82,7 @@ module.exports = {
                     });
                 }
             } else {
-                var targets = targetRoom.find(FIND_CONSTRUCTION_SITES);
+                targets = targetRoom.find(FIND_CONSTRUCTION_SITES);
                 if (targets.length) {
                     if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(targets[0], {

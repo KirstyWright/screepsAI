@@ -1,7 +1,7 @@
 require('prototype_creep');
 require('prototype_spawner');
+let stats = require('stats');
 let manager = require('manager');
-let spawnModule = require('spawn');
 //apples
 module.exports.loop = function() {
     for (var name in Memory.creeps) {
@@ -10,12 +10,14 @@ module.exports.loop = function() {
 
             let creep = Memory.creeps[name];
             if (creep.role == 'miner') {
-                let managerId  = 0;
-                let manager = Memory.manager[managerId];
+                if (creep.managerId === undefined) {
+                    creep.managerId = 0;
+                }
+                let manager = Memory.manager[creep.managerId];
                 for (let key in manager.sources) {
                     let index = manager.sources[key].miners.indexOf(name);
                     if (index != -1) {
-                        Memory.manager[managerId].sources[key].miners.splice(index, 1)
+                        manager.sources[key].miners.splice(index, 1);
                     }
                 }
             }
@@ -44,7 +46,16 @@ module.exports.loop = function() {
     //         },
     //     ]
     // }]
-    let managers = []
+    if (!Memory.manager || Memory.manager.length == 0) {
+        if (Game.spawns['Spawn1'] == undefined) {
+            return;
+        }
+        Memory.manager = [{
+            "room": Game.spawns['Spawn1'].room.name
+        }];
+    }
+
+    let managers = [];
     for (let key in Memory.manager) {
         managers[key] = new manager(0);
         managers[key].init();
@@ -54,7 +65,9 @@ module.exports.loop = function() {
         managers[key].run();
     }
 
-    for (var name in Game.creeps) {
+    for (let name in Game.creeps) {
         Game.creeps[name].run();
     }
-}
+
+    stats.exportStats();
+};

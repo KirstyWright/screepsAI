@@ -3,10 +3,10 @@ module.exports = {
         this.mine(creep);
     },
     mine: function(creep) {
-        let sources = creep.getManager().sources;
+        let sources = creep.getManagerMemory().sources;
         if (!creep.memory.sourceId) {
             let sortable = []
-            for (key in sources) {
+            for (let key in sources) {
                 sortable.push({
                     "num": sources[key].miners.length,
                     "key": key
@@ -19,10 +19,9 @@ module.exports = {
 
             let first = sources[sortable[0].key];
             if (!sources[sortable[0].key].miners.includes(creep.name)) {
-                creep.getManager().sources[sortable[0].key].miners.push(creep.name);
+                creep.getManagerMemory().sources[sortable[0].key].miners.push(creep.name);
             }
             creep.memory.sourceId = first.sourceId;
-            console.log("I want to use "+first.pos.x+", "+first.pos.y + ' - '+ first.pos.roomName);
 
         }
         if (creep.memory.sourceId) {

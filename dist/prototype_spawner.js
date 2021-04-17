@@ -26,7 +26,9 @@ var roles = {
         800: [MOVE, MOVE, CLAIM, CARRY, CARRY]
     },
     'milita': {
-        490: [TOUGH, TOUGH, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK]
+        // 460: [TOUGH,MOVE,MOVE,MOVE,RANGED_ATTACK,RANGED_ATTACK],
+        660: [TOUGH,MOVE,MOVE,MOVE,MOVE,RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK],
+        860: [TOUGH,MOVE,MOVE,MOVE,MOVE,MOVE,RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK]
     }
 };
 
@@ -40,10 +42,10 @@ Spawn.prototype.queueCreep = function(data) {
         role: data.role,
         data: data
     });
-}
+};
 Spawn.prototype.attemptSpawning = function() {
-    if (this.manager.memory.spawnQueue.length > 0) {
-        for (key in this.manager.memory.spawnQueue) {
+    if (this.manager.memory.spawnQueue && this.manager.memory.spawnQueue.length > 0) {
+        for (let key in this.manager.memory.spawnQueue) {
             let creep = this.manager.memory.spawnQueue[key];
             if (creep.spawned) {
                 continue;
@@ -53,19 +55,19 @@ Spawn.prototype.attemptSpawning = function() {
             creep.data.spawner = this.name;
             if (creep.role && roles[creep.role]) {
 
-                let sortable = []
-                for (cost in roles[creep.role]) {
+                let sortable = [];
+                for (let cost in roles[creep.role]) {
                     sortable.push({
                         "cost": cost,
                         "creep": roles[creep.role][cost]
-                    })
+                    });
                 }
 
                 sortable.sort(function(a, b) {
                     return a["cost"] < b["cost"];
                 });
 
-                for (key in sortable) {
+                for (let key in sortable) {
                     if (sortable[key].cost <= this.room.energyAvailable) {
                         response = this.spawnCreep(roles[creep.role][sortable[key].cost], name, {
                             memory: creep.data
@@ -87,11 +89,11 @@ Spawn.prototype.attemptSpawning = function() {
             break;
         }
     }
-}
+};
 Spawn.prototype.generateCreepName = function(role) {
     if (Memory.lastCreepId == undefined) {
         Memory.lastCreepId = 0;
     }
     Memory.lastCreepId = Memory.lastCreepId + 1;
     return role + "-" + Memory.lastCreepId;
-}
+};
