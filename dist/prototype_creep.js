@@ -7,6 +7,7 @@ var roles = {
     'claimer': require('role.claimer'),
     'scout': require('role.scout'),
     'milita': require('role.milita'),
+    'distributor': require('role.distributor'),
 };
 var roleEmoji = {
     'harvester':'⛏️',
@@ -16,7 +17,8 @@ var roleEmoji = {
     'hauler':'🚚',
     'claimer': '🏴‍☠️',
     'scout': '🔭',
-    'milita': '⚔️'
+    'milita': '⚔️',
+    'distributor': '🧱'
 };
 
 Creep.prototype.run = function() {
@@ -71,7 +73,10 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
     if (useContainer) {
         var containers = this.room.find(FIND_STRUCTURES, {
             filter: (i) => {
-                return ((i.structureType == STRUCTURE_CONTAINER || (i.structureType == STRUCTURE_SPAWN && i.store.energy > 250) )&& i.store.energy > 0);
+                return (
+                    (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE || (i.structureType == STRUCTURE_SPAWN && i.store.energy > 250)
+                    ) && i.store.energy > (['distributor'].includes(this.memory.role) ? 0 :  500)
+                );
             }
         });
         if (containers.length > 0) {
@@ -79,7 +84,7 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
             this.memory.sourceId = null;
             container = containers[0];
             if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.moveTo(container, {
+                this.moveToPos(container, {
                     visualizePathStyle: {
                         stroke: '#ffaa00'
                     }
@@ -118,7 +123,7 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
 
             let target = Game.getObjectById(this.memory.sourceId);
             if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-                this.moveTo(target, {
+                this.moveToPos(target, {
                     visualizePathStyle: {
                         stroke: '#ffaa00'
                     }
@@ -126,4 +131,23 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
             }
         }
     }
+};
+
+Creep.prototype.moveToPos = function(pos, opts) {
+    if (opts == undefined) {
+        opts = {};
+    }
+    let roomName = null;
+    if (pos.roomName) {
+        roomName = pos.roomName;
+    } else if (pos.pos && pos.pos.roomName) {
+        roomName = pos.pos.roomName;
+    }
+    if (roomName && opts.ignoreCreeps === undefined) {
+        opts.ignoreCreeps = 0;
+    }
+    opts.visualizePathStyle = {
+        stroke: '#ffaa00'
+    };
+    return this.moveTo(pos, opts);
 };

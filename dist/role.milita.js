@@ -11,7 +11,7 @@ module.exports = {
             }).length < 4) {
                 return;
             } else if (creep.room.name != creep.memory.targetRoom) {
-                creep.moveTo(new RoomPosition(25, 25, creep.memory.targetRoom), {
+                creep.moveToPos(new RoomPosition(25, 25, creep.memory.targetRoom), {
                     visualizePathStyle: {
                         stroke: '#ff5733'
                     },
@@ -21,8 +21,8 @@ module.exports = {
                 return this.raid(creep);
             }
             break;
-        case "patrol":
         default:
+        case "patrol":
             return this.findInRoomAndAttack(creep);
         }
     },
@@ -86,7 +86,7 @@ module.exports = {
                     creep.log('Found opportunity killing');
                     creep.attack(anotherTarget);
                 }
-                creep.moveTo(target, {
+                creep.moveToPos(target, {
                     visualizePathStyle: {
                         stroke: '#ff5733'
                     },
@@ -107,11 +107,13 @@ module.exports = {
             } else {
                 let spawns = creep.room.find(FIND_MY_SPAWNS);
                 if (spawns.length > 0) {
-                    creep.moveTo(spawns[0].pos, {
+                    creep.moveToPos(spawns[0].pos, {
                         range: 3
                     });
                 }
             }
+        } else {
+            this.attackTarget(creep);
         }
     }
 };

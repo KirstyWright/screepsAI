@@ -63,11 +63,6 @@ class Manager {
         });
 
 
-        if (Memory.temp != 'c') {
-            Memory.temp = 'c';
-            this.addRoom('W43N28');
-        }
-
         this.spawner = search[0];
         this.spawner.manager = this;
     }

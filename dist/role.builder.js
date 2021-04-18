@@ -1,6 +1,5 @@
 module.exports = {
 
-    /** @param {Creep} creep **/
     run: function(creep) {
 
         if (creep.memory.emptying && creep.store.getUsedCapacity() == 0) {
@@ -11,28 +10,27 @@ module.exports = {
 
         if (creep.memory.emptying) {
             var targets = creep.room.find(FIND_STRUCTURES, {
-                filter: object => object.hits < object.hitsMax
+                filter: (object) => {
+                    return (
+                        object.hits < object.hitsMax
+                        && (object.structureType !== STRUCTURE_WALL && object.structureType !== STRUCTURE_RAMPART)
+                    );
+                }
             });
 
             targets.sort((a, b) => a.hits - b.hits);
-
             if (targets.length > 0) {
-                if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {
-                        visualizePathStyle: {
-                            stroke: '#ffffff'
-                        }
-                    });
+                let repairCommand = creep.repair(targets[0]);
+                if (repairCommand == ERR_NOT_IN_RANGE) {
+                    creep.moveToPos(targets[0]);
+                } else if (repairCommand != OK) {
+                    console.log(repairCommand);
                 }
             } else {
-                var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-                if (targets.length) {
-                    if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(targets[0], {
-                            visualizePathStyle: {
-                                stroke: '#ffffff'
-                            }
-                        });
+                let target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                if (target) {
+                    if (creep.build(target) == ERR_NOT_IN_RANGE) {
+                        creep.moveToPos(target);
                     }
                 }
             }

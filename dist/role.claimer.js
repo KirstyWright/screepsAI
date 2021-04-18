@@ -1,16 +1,29 @@
 module.exports = {
     run: function(creep) {
-        console.log(creep);
+
+        if (Game.rooms['W43N28']) {
+            let room = Game.rooms['W43N28'];
+            if (room.controller && room.controller.upgradeBlocked < 50) {
+                let claimCommand = creep.attackController(room.controller);
+                if (claimCommand == ERR_NOT_IN_RANGE) {
+                    creep.moveToPos(room.controller);
+                }
+                return;
+            }
+        }
 
         let flag = Game.flags['claim'];
         if (flag) {
-            if (!flag.room) {
-                creep.moveTo(flag, {reusePath:true});
-            } else if (creep.claimController(flag.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller);
-            } else {
-                creep.claimController(flag.room.controller)
+            if (!flag.room || creep.room.name != flag.room.name) {
+                creep.moveToPos(flag);
+                return;
+            }
+            // let claimCommand = creep.attackController(flag.room.controller);
+            // let claimCommand = creep.claimController(flag.room.controller);
+            let claimCommand = creep.reserveController(flag.room.controller);
+            if (claimCommand == ERR_NOT_IN_RANGE) {
+                creep.moveToPos(creep.room.controller);
             }
         }
     }
-}
+};

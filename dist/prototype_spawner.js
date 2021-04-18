@@ -6,29 +6,38 @@ var roles = {
         // 450: [MOVE, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
     },
     'builder': {
+        700: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK],
         600: [MOVE, MOVE, CARRY, CARRY, WORK, WORK, WORK, WORK],
         250: [MOVE, CARRY, WORK, WORK]
     },
     'upgrader': {
+        700: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK],
         600: [MOVE, MOVE, CARRY, CARRY, WORK, WORK, WORK, WORK],
         250: [MOVE, CARRY, WORK, WORK]
     },
     'miner': {
-        550: [MOVE, WORK, WORK, WORK, WORK, WORK],
+        650: [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK],
         250: [MOVE, WORK, WORK]
     },
     'hauler': {
+        700: [MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY],
         450: [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
         250: [MOVE, CARRY, CARRY, CARRY, CARRY],
         150: [MOVE, CARRY, CARRY],
     },
     'claimer': {
-        800: [MOVE, MOVE, CLAIM, CARRY, CARRY]
+        1300: [MOVE,MOVE,CLAIM,CLAIM],
+        650: [MOVE,CLAIM]
     },
     'milita': {
-        // 460: [TOUGH,MOVE,MOVE,MOVE,RANGED_ATTACK,RANGED_ATTACK],
+        170: [TOUGH,MOVE,MOVE,RANGED_ATTACK],
+        460: [TOUGH,MOVE,MOVE,MOVE,RANGED_ATTACK,RANGED_ATTACK],
         660: [TOUGH,MOVE,MOVE,MOVE,MOVE,RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK],
         860: [TOUGH,MOVE,MOVE,MOVE,MOVE,MOVE,RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK,RANGED_ATTACK]
+    },
+    'distributor': {
+        250: [MOVE, CARRY, CARRY, CARRY, CARRY],
+        150: [MOVE, CARRY, CARRY]
     }
 };
 
@@ -37,13 +46,20 @@ Spawn.prototype.queueCreep = function(data) {
         this.manager.memory.spawnQueue = [];
     }
     data.managerId = this.manager.id;
-    this.manager.memory.spawnQueue.push({
+
+    let spawnObject = {
         parts: roles[data.role][250],
         role: data.role,
+        name: this.generateCreepName(data.role),
         data: data
-    });
+    };
+    this.manager.memory.spawnQueue.push(spawnObject);
+    return spawnObject;
 };
 Spawn.prototype.attemptSpawning = function() {
+    if (this.spawning) {
+        return;
+    }
     if (this.manager.memory.spawnQueue && this.manager.memory.spawnQueue.length > 0) {
         for (let key in this.manager.memory.spawnQueue) {
             let creep = this.manager.memory.spawnQueue[key];
@@ -51,7 +67,7 @@ Spawn.prototype.attemptSpawning = function() {
                 continue;
             }
             let response = -20;
-            let name = this.generateCreepName(creep.data.role);
+            let name = creep.name;
             creep.data.spawner = this.name;
             if (creep.role && roles[creep.role]) {
 
@@ -66,7 +82,6 @@ Spawn.prototype.attemptSpawning = function() {
                 sortable.sort(function(a, b) {
                     return a["cost"] < b["cost"];
                 });
-
                 for (let key in sortable) {
                     if (sortable[key].cost <= this.room.energyAvailable) {
                         response = this.spawnCreep(roles[creep.role][sortable[key].cost], name, {
@@ -95,5 +110,5 @@ Spawn.prototype.generateCreepName = function(role) {
         Memory.lastCreepId = 0;
     }
     Memory.lastCreepId = Memory.lastCreepId + 1;
-    return role + "-" + Memory.lastCreepId;
+    return role + "-" + this.manager.id + ":" + Memory.lastCreepId;
 };

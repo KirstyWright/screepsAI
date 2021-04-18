@@ -5,12 +5,12 @@ module.exports = {
     mine: function(creep) {
         let sources = creep.getManagerMemory().sources;
         if (!creep.memory.sourceId) {
-            let sortable = []
+            let sortable = [];
             for (let key in sources) {
                 sortable.push({
                     "num": sources[key].miners.length,
                     "key": key
-                })
+                });
             }
 
             sortable.sort(function(a, b) {
@@ -30,19 +30,20 @@ module.exports = {
                 if (sources[key].sourceId !== creep.memory.sourceId) {
                     continue;
                 }
-                cachedSource = sources[key]
+                cachedSource = sources[key];
             }
             if (cachedSource.pos.roomName === creep.pos.roomName) {
                 let target = Game.getObjectById(creep.memory.sourceId);
                 if (creep.harvest(target) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, {
+                    creep.moveToPos(target, {
+                        range: 1,
                         visualizePathStyle: {
                             stroke: '#ffaa00'
                         }
                     });
                 }
             } else {
-                creep.moveTo(new RoomPosition(cachedSource.pos.x, cachedSource.pos.y, cachedSource.pos.roomName), {
+                creep.moveToPos(new RoomPosition(cachedSource.pos.x, cachedSource.pos.y, cachedSource.pos.roomName), {
                     visualizePathStyle: {
                         stroke: '#ffaa00'
                     }
@@ -50,4 +51,4 @@ module.exports = {
             }
         }
     }
-}
+};

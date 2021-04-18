@@ -12,7 +12,9 @@ module.exports = {
             upgrader: 0,
             miner: 0,
             hauler: 0,
-            milita: 0
+            distributor: 0,
+            milita: 0,
+            claimer: 0
         };
         let creepsInRoom = Spawner.manager.creeps;
         for (let key in creepsInRoom) {
@@ -26,59 +28,93 @@ module.exports = {
             }
         }
 
-        // for (let key in roles) {
-        //     console.log(key + ':' + roles[key]);
-        // }
-        if (roles['harvester'] < 1 && Spawner.manager.memory.sources.length > 0) {
-            Spawner.queueCreep({
-                role:'harvester'
-            });
-            console.log('Queueing harvester');
-        }
+        // DEFENSIVE CODE
 
         for (let key in Spawner.manager.memory.rooms) {
             let room = Game.rooms[Spawner.manager.memory.rooms[key]];
             if (room) {
                 let enemies = room.find(FIND_HOSTILE_CREEPS);
                 if (enemies.length > 0) {
+                    if (roles['milita'] < 4) {
+                        Spawner.queueCreep({
+                            role:'milita',
+                            category: 'patrol'
+                        });
+                    }
+                } else {
                     if (roles['milita'] < 2) {
                         Spawner.queueCreep({
                             role:'milita',
                             category: 'patrol'
                         });
-                        console.log('Queueing milita');
                     }
                 }
             }
         }
-        //
-        // FIND_HOSTILE_CREEPS
 
-        if (roles['miner'] < Spawner.manager.memory.sources.length) {
-            Spawner.queueCreep({
-                role:'miner'
-            });
-            console.log('Queueing miner');
+
+        for (let key in Spawner.manager.memory.sources) {
+            let miners = Spawner.manager.memory.sources[key].miners;
+            let minerWillBeThereForAWhile = false;
+
+            for (let x in miners) {
+                if (Game.creeps[miners[x]] && Game.creeps[miners[x]].ticksToLive > 150) {
+                    minerWillBeThereForAWhile = true;
+                    break;
+                } else if (!Game.creeps[miners[x]] || Game.creeps[miners[x]].spawning) {
+                    // Must be in the spawn queue
+                    minerWillBeThereForAWhile = true;
+                    break;
+                }
+            }
+            if (!minerWillBeThereForAWhile) {
+                console.log("Need a new miner for "+Spawner.manager.memory.sources[key].sourceId);
+                let result = Spawner.queueCreep({
+                    role: 'miner',
+                    sourceId: Spawner.manager.memory.sources[key].sourceId
+                });
+                Spawner.manager.memory.sources[key].miners.push(result.name);
+            }
         }
-        if (roles['hauler'] < Math.ceil(roles['miner']) * 1.5) {
+
+        if (roles['harvester'] < 1 && roles['miner'] < 1 && roles['hauler'] < 1) {
+            Spawner.queueCreep({
+                role:'harvester'
+            });
+        }
+
+        if (roles['hauler'] < roles['miner']) {
             Spawner.queueCreep({
                 role:'hauler'
             });
-            console.log('Queueing hauler');
         }
-        if (roles['builder'] < 2 && Spawner.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+        if (roles['builder'] < Math.max(2, Spawner.room.find(FIND_CONSTRUCTION_SITES).length / 10)) {
             Spawner.queueCreep({
                 role:'builder'
             });
-            console.log('Queueing builder');
         }
-        if (roles['upgrader'] < 4 && roles['harvester'] > 0) {
+        if (roles['upgrader'] < 2) {
             Spawner.queueCreep({
                 role:'upgrader'
             });
-            console.log('Queueing upgrader');
+        }
+        if (roles['distributor'] < Math.ceil(Math.max(Spawner.room.find(FIND_MY_STRUCTURES, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_EXTENSION;
+            }}).length / 10)) && roles['hauler'] > 0) {
+            Spawner.queueCreep({
+                role:'distributor'
+            });
         }
 
+
+        if (Spawner.manager.memory.spawnQueue.length < 2) {
+            if (Game.flags['claim'] && roles['claimer'] < 1) {
+                Spawner.queueCreep({
+                    role:'claimer'
+                });
+            }
+        }
         // if (!Memory.temp || Memory.temp != 'a') {
         //     Memory.temp = 'a';
         //     Spawner.queueCreep({

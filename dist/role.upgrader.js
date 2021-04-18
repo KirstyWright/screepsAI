@@ -9,14 +9,14 @@ module.exports = {
 
         if (creep.memory.emptying) {
             if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller, {
+                creep.moveToPos(creep.room.controller, {
                     visualizePathStyle: {
                         stroke: '#ffffff'
                     }
                 });
             }
         } else {
-            creep.getEnergy(true, true);
+            creep.getEnergy(true, false);
         }
     }
-}
+};

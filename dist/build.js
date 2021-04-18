@@ -38,9 +38,9 @@ module.exports = {
         if (manager.memory.buildQueue == undefined) {
             manager.memory.buildQueue = [];
         }
-        if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.id == manager.room.id).length > 0 && this.getCurrentSites(manager) < 2) {
-            this.createRoads(manager);
+        if (_.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader' && creep.room.id == manager.room.id).length > 1 && this.getCurrentSites(manager) < 2) {
             this.buildExtensions(manager);
+            this.createRoads(manager);
         }
     },
     getCurrentSites: function(manager) {
@@ -87,7 +87,7 @@ module.exports = {
         });
         for (let key in structures) {
             let structure = structures[key];
-            let path = PathFinder.search(spawn, {pos: structure.pos, range: 0}, this.pathfinderCostIgnoreRoads);
+            let path = PathFinder.search(spawn.pos, {pos: structure.pos, range: 1}, this.pathfinderCostIgnoreRoads);
             for (let pathKey in path.path) {
                 if (roadsToBuild <= 0) {
                     break;
@@ -100,7 +100,6 @@ module.exports = {
             }
         }
 
-        let pathFinder = PathFinder.search(controller.pos, roads);
     },
     buildExtensions: function(manager) {
         // extensions build
@@ -113,8 +112,6 @@ module.exports = {
                 return structure.structureType == STRUCTURE_EXTENSION;
             }
         });
-        let flag = false;
-        let areaToSearch = 3;
 
         let extensionsMap = {
             0: 0,
@@ -127,22 +124,45 @@ module.exports = {
             7: 50,
             8: 60
         };
-        let numberOfExtensionsAvailable = extensionsMap[manager.room.controller.level]
-        if (currentExtensions.length < numberOfExtensionsAvailable && this.getCurrentSites(manager).length < 2) {
-            for (var x = (spawn.pos.x - areaToSearch); x < (spawn.pos.x + areaToSearch); x++) {
-                if (flag) {
-                    break;
-                }
-                for (var y = (spawn.pos.y - areaToSearch); y < (spawn.pos.y + areaToSearch); y++) {
-                    let roomPos = new RoomPosition(x, y, spawn.room.name);
-                    if (roomPos.lookFor(LOOK_TERRAIN) != 'wall' && roomPos.lookFor(LOOK_STRUCTURES) == false) {
-                        spawn.room.createConstructionSite(x, y, STRUCTURE_EXTENSION);
-                        flag = true;
-                        break;
+        let numberOfExtensionsAvailable = extensionsMap[manager.room.controller.level];
+
+        if (currentExtensions.length >= numberOfExtensionsAvailable || this.getCurrentSites(manager).length > 2) {
+            return
+        }
+        let tiles = manager.room.getTerrain();
+        let options = [];
+        for (var y = 0; y < 50; y++) {
+            for (var x = 0; x < 50; x++) {
+                if (
+                    (tiles.get(x, y) === 0 || tiles.get(x, y) === TERRAIN_MASK_SWAMP) // plain or swamp
+                    && (x + y) % 2 === 0 // fancy pattern§
+                ) {
+                    let results = manager.room.lookAt(x, y);
+                    let flag = false;
+                    for (let key in results) {
+                        if (results[key].type == 'structure') {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (!flag) {
+                        options.push({
+                            x: x,
+                            y: y
+                        });
                     }
                 }
             }
         }
+
+        let sorted = options.sort( (a, b) => {
+            return (spawn.pos.getRangeTo(a.x, a.y) - spawn.pos.getRangeTo(b.x, b.y));
+        } );
+
+        if (sorted[0]) {
+            spawn.room.createConstructionSite(sorted[0].x, sorted[0].y, STRUCTURE_EXTENSION);
+        }
+
     }
 };
 // new RoomVisual(spawn.room.name).circle(pos,{fill:'orange'});
