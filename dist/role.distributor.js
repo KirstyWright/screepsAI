@@ -26,9 +26,14 @@ module.exports = {
                     });
                 }
             } else {
-                targets = targetRoom.find(FIND_CONSTRUCTION_SITES);
-                if (targets.length) {
-                    if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
+                targets = targetRoom.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return (structure.structureType == STRUCTURE_TOWER) &&
+                            structure.energy < structure.energyCapacity;
+                    }
+                });
+                if (targets.length > 0) {
+                    if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                         creep.moveToPos(targets[0], {
                             visualizePathStyle: {
                                 stroke: '#ffffff'

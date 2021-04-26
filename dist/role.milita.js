@@ -108,7 +108,7 @@ module.exports = {
                 let spawns = creep.room.find(FIND_MY_SPAWNS);
                 if (spawns.length > 0) {
                     creep.moveToPos(spawns[0].pos, {
-                        range: 3
+                        range: 5
                     });
                 }
             }

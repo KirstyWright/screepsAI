@@ -34,17 +34,23 @@ module.exports = {
         }
     },
     run: function(manager) {
-
         if (manager.memory.buildQueue == undefined) {
             manager.memory.buildQueue = [];
         }
-        if (_.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader' && creep.room.id == manager.room.id).length > 1 && this.getCurrentSites(manager) < 2) {
+        if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.id == manager.room.id).length > 1 && this.getCurrentSites(manager) < 2) {
             this.buildExtensions(manager);
             this.createRoads(manager);
         }
     },
     getCurrentSites: function(manager) {
-        return manager.room.find(FIND_CONSTRUCTION_SITES);
+        let results = [];
+        for (let key in manager.memory.rooms) {
+            let room = Game.rooms[manager.memory.rooms[key]];
+            if (room) {
+                results = results.concat(room.find(FIND_CONSTRUCTION_SITES));
+            }
+        }
+        return results;
     },
     createRoads(manager) {
         let roads = manager.room.find(FIND_STRUCTURES, {
@@ -135,7 +141,7 @@ module.exports = {
             for (var x = 0; x < 50; x++) {
                 if (
                     (tiles.get(x, y) === 0 || tiles.get(x, y) === TERRAIN_MASK_SWAMP) // plain or swamp
-                    && (x + y) % 2 === 0 // fancy pattern§
+                    && (x + y) % 2 === 1 // fancy pattern§
                 ) {
                     let results = manager.room.lookAt(x, y);
                     let flag = false;

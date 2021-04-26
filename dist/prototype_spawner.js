@@ -83,10 +83,15 @@ Spawn.prototype.attemptSpawning = function() {
                     return a["cost"] < b["cost"];
                 });
                 for (let key in sortable) {
-                    if (sortable[key].cost <= this.room.energyAvailable) {
+                    let row = sortable[key];
+                    if (row.cost <= this.room.energyAvailable) {
                         response = this.spawnCreep(roles[creep.role][sortable[key].cost], name, {
                             memory: creep.data
                         });
+                        break;
+                    }
+
+                    if (this.room.storage && this.room.storage.store[RESOURCE_ENERGY] >= row.cost) {
                         break;
                     }
                 }

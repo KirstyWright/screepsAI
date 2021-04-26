@@ -35,13 +35,6 @@ module.exports = {
             if (room) {
                 let enemies = room.find(FIND_HOSTILE_CREEPS);
                 if (enemies.length > 0) {
-                    if (roles['milita'] < 4) {
-                        Spawner.queueCreep({
-                            role:'milita',
-                            category: 'patrol'
-                        });
-                    }
-                } else {
                     if (roles['milita'] < 2) {
                         Spawner.queueCreep({
                             role:'milita',
@@ -52,6 +45,12 @@ module.exports = {
             }
         }
 
+        if (roles['harvester'] < 2 && roles['miner'] < 1 && roles['hauler'] < 1) {
+            Spawner.queueCreep({
+                role:'harvester'
+            });
+            return;
+        }
 
         for (let key in Spawner.manager.memory.sources) {
             let miners = Spawner.manager.memory.sources[key].miners;
@@ -77,13 +76,7 @@ module.exports = {
             }
         }
 
-        if (roles['harvester'] < 1 && roles['miner'] < 1 && roles['hauler'] < 1) {
-            Spawner.queueCreep({
-                role:'harvester'
-            });
-        }
-
-        if (roles['hauler'] < roles['miner']) {
+        if (roles['hauler'] < (roles['miner'] *2)) {
             Spawner.queueCreep({
                 role:'hauler'
             });
@@ -93,7 +86,8 @@ module.exports = {
                 role:'builder'
             });
         }
-        if (roles['upgrader'] < 2) {
+        // if (roles['upgrader'] < Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY] - 2000 ) / 1000))) {
+        if (roles['upgrader'] < 1) {
             Spawner.queueCreep({
                 role:'upgrader'
             });
@@ -115,8 +109,22 @@ module.exports = {
                 });
             }
         }
-        // if (!Memory.temp || Memory.temp != 'a') {
-        //     Memory.temp = 'a';
+        // //
+        // if (!Memory.temp || Memory.temp != 'e') {
+        //     Memory.temp = 'e';
+        //     for (var i = 0; i < 10; i++) {
+        //         Spawner.queueCreep({
+        //             role:'builder'
+        //         });
+        //     }
+        // }
+        // if (!Memory.temp || Memory.temp != 'b') {
+        //     Memory.temp = 'b';
+        //     Spawner.queueCreep({
+        //         role:'milita',
+        //         category:'raid',
+        //         targetRoom: 'W43N28'
+        //     });
         //     Spawner.queueCreep({
         //         role:'milita',
         //         category:'raid',

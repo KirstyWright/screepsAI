@@ -3,8 +3,8 @@ module.exports = {
 
         if (Game.rooms['W43N28']) {
             let room = Game.rooms['W43N28'];
-            if (room.controller && room.controller.upgradeBlocked < 50) {
-                let claimCommand = creep.attackController(room.controller);
+            if (room.controller && (room.controller.upgradeBlocked == undefined || room.controller.upgradeBlocked < 70)) {
+                let claimCommand = creep.reserveController(room.controller);
                 if (claimCommand == ERR_NOT_IN_RANGE) {
                     creep.moveToPos(room.controller);
                 }

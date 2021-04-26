@@ -1,14 +1,15 @@
 require('prototype_spawner');
+var TaskManager = require('taskmanager');
 let spawnModule = require('spawn');
 let buildModule = require('build');
 class Manager {
-    constructor (id) {
+    constructor(id) {
         this.id = id;
         this.memory = Memory.manager[id];
 
         this.room = Game.rooms[this.memory.room];
     }
-    log (content) {
+    log(content) {
         console.log("Manager:" + this.id + ': ' + String(content));
     }
     init() {
@@ -45,7 +46,7 @@ class Manager {
                     "pos": sourcesInRoom[key].pos,
                     "sourceId": sourcesInRoom[key].id
                 });
-                this.log("Found new source "+sourcesInRoom[key].id);
+                this.log("Found new source " + sourcesInRoom[key].id);
             }
             this.memory.sources = sources;
         }
@@ -59,12 +60,16 @@ class Manager {
         }
 
         let search = this.room.find(FIND_MY_STRUCTURES, {
-            filter: { structureType: STRUCTURE_SPAWN }
+            filter: {
+                structureType: STRUCTURE_SPAWN
+            }
         });
 
 
         this.spawner = search[0];
         this.spawner.manager = this;
+
+        this.taskManager = new TaskManager(this)
     }
     addRoom(roomName) {
         let room = Game.rooms[roomName];
@@ -78,7 +83,7 @@ class Manager {
                         "pos": sourcesInRoom[key].pos,
                         "sourceId": sourcesInRoom[key].id
                     });
-                    this.log("Found new source "+sourcesInRoom[key].id);
+                    this.log("Found new source " + sourcesInRoom[key].id);
                 }
             }
         }
@@ -88,6 +93,71 @@ class Manager {
         this.spawner.attemptSpawning();
 
         buildModule.run(this);
+
+
+        let towers = this.room.find(
+            FIND_MY_STRUCTURES, {
+                filter: {
+                    structureType: STRUCTURE_TOWER
+                }
+            });
+        towers.forEach((tower) => {
+            let result = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+            if (result) {
+                return tower.attack(result);
+            }
+
+            result = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
+                filter: (object) => {
+                    return (object.hits < object.hitsMax);
+                }
+            });
+
+            if (result) {
+                return tower.heal(result);
+            }
+
+            if (tower.store.getUsedCapacity(RESOURCE_ENERGY) < 500) {
+                return;
+            }
+
+            var targets = this.room.find(FIND_STRUCTURES, {
+                filter: (object) => {
+                    return (
+                        (object.hits < object.hitsMax &&
+                            (object.structureType !== STRUCTURE_WALL && object.structureType !== STRUCTURE_RAMPART)) ||
+                        (
+                            (object.structureType === STRUCTURE_WALL || object.structureType === STRUCTURE_RAMPART) &&
+                            object.hits < 5000
+                        )
+                    );
+                }
+            });
+
+            targets.sort((a, b) => a.hits - b.hits);
+            if (targets.length > 0) {
+                let repairCommand = tower.repair(targets[0]);
+            }
+
+
+        });
+
+
+
+    }
+
+    findInRooms (type, opts) {
+        let results = [];
+        for (let key in this.memory.rooms) {
+            let room = Game.rooms[this.memory.rooms[key]];
+            if (room) {
+                results = results.concat(room.find(type, opts));
+            }
+        }
+        return results;
+    }
+    finish () {
+        this.taskManager.finish();
     }
 }
 

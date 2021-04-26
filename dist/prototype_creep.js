@@ -68,21 +68,29 @@ Creep.prototype.getManagerMemory = function () {
     return Memory.manager[0];
 };
 
-Creep.prototype.getEnergy = function(useContainer, useSource) {
+Creep.prototype.getEnergy = function(useContainer, useSource, roomName) {
     let container;
+    let room = null;
+    if (roomName) {
+        room = Game.rooms[roomName];
+    }
     if (useContainer) {
-        var containers = this.room.find(FIND_STRUCTURES, {
+        let obj = {
             filter: (i) => {
                 return (
-                    (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE || (i.structureType == STRUCTURE_SPAWN && i.store.energy > 250)
-                    ) && i.store.energy > (['distributor'].includes(this.memory.role) ? 0 :  500)
+                    (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store.energy > (['distributor'].includes(this.memory.role) ? 0 :  500)
                 );
             }
-        });
-        if (containers.length > 0) {
+        };
+        if (room) {
+            container = room.find(FIND_STRUCTURES, obj)[0];
+        } else {
+            container = this.pos.findClosestByRange(FIND_STRUCTURES, obj);
+        }
+
+        if (container) {
             // there is a container
             this.memory.sourceId = null;
-            container = containers[0];
             if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 this.moveToPos(container, {
                     visualizePathStyle: {
@@ -90,6 +98,35 @@ Creep.prototype.getEnergy = function(useContainer, useSource) {
                     }
                 });
             }
+        } else {
+            if (roomName === undefined) {
+                return this.getEnergy(useContainer, useSource, this.getManagerMemory().room);
+            }
+            let obj = {
+                filter: (i) => {
+                    return (
+                        (i.structureType == STRUCTURE_SPAWN) && i.store.energy > 100
+                    );
+                }
+            };
+            if (room) {
+                container = room.find(FIND_STRUCTURES, obj)[0];
+            } else {
+                container = this.pos.findClosestByRange(FIND_STRUCTURES, obj);
+            }
+
+            if (container && !container.room.storage) {
+                // there is a container and if no storage in the room
+                this.memory.sourceId = null;
+                if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveToPos(container, {
+                        visualizePathStyle: {
+                            stroke: '#ffaa00'
+                        }
+                    });
+                }
+            }
+
         }
     }
 
@@ -137,17 +174,30 @@ Creep.prototype.moveToPos = function(pos, opts) {
     if (opts == undefined) {
         opts = {};
     }
-    let roomName = null;
-    if (pos.roomName) {
-        roomName = pos.roomName;
-    } else if (pos.pos && pos.pos.roomName) {
-        roomName = pos.pos.roomName;
+    opts.ignoreCreeps = 1;
+    if (opts.costCallback == undefined) {
+        opts.costCallback = (roomName, costMatrix) => {
+            for (let name in Game.creeps) {
+                if (Game.creeps[name].room.name == roomName) {
+                    costMatrix.set(Game.creeps[name].pos.x, Game.creeps[name].pos.y, 20);
+                }
+            }
+        }
     }
-    if (roomName && opts.ignoreCreeps === undefined) {
-        opts.ignoreCreeps = 0;
-    }
+
     opts.visualizePathStyle = {
         stroke: '#ffaa00'
     };
     return this.moveTo(pos, opts);
+};
+
+Creep.prototype.findInManagerRooms = function (type, opts) {
+    let results = [];
+    for (let key in this.getManagerMemory().rooms) {
+        let room = Game.rooms[this.getManagerMemory().rooms[key]];
+        if (room) {
+            results = results.concat(room.find(type, opts));
+        }
+    }
+    return results;
 };

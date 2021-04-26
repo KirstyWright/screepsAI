@@ -3,6 +3,21 @@ require('prototype_spawner');
 let stats = require('stats');
 let manager = require('manager');
 //apples
+
+String.prototype.hashCode = function() {
+    var hash = 0;
+    if (this.length == 0) {
+        return hash;
+    }
+    for (var i = 0; i < this.length; i++) {
+        var char = this.charCodeAt(i);
+        hash = ((hash<<5)-hash)+char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+}
+
+
 module.exports.loop = function() {
     for (var name in Memory.creeps) {
         if (!Game.creeps[name]) {
@@ -66,8 +81,19 @@ module.exports.loop = function() {
     }
 
     for (let name in Game.creeps) {
+        if (Game.creeps[name].memory.managerId != undefined) {
+            Game.creeps[name].manager = managers[Game.creeps[name].memory.managerId];
+        }
         Game.creeps[name].run();
     }
 
+    for (let key in managers) {
+        managers[key].finish();
+    }
+
     stats.exportStats();
+
+    if (Game.cpu.bucket >= 10000) {
+        Game.cpu.generatePixel();
+    }
 };
