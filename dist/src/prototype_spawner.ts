@@ -87,8 +87,7 @@ Spawn.prototype.attemptSpawning = function() {
                 if (loop > 1 && creep.role == 'scout') {
                     break;
                 }
-                if (this.room.energyCapacityAvailable <= cost) {
-                    // If cost >= the energy the spawner & extensions can provide
+                if (this.room.energyAvailable <= cost) {
                     if (this.room.storage) {
                         // if we have storage in the room
                         if (this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) <= cost) {
@@ -101,6 +100,10 @@ Spawn.prototype.attemptSpawning = function() {
                     } else {
                         break;
                     }
+                }
+                if (this.room.energyCapacityAvailable <= cost) {
+                    // If cost >= the energy the spawner & extensions can provide
+                    break;
                 }
             }
             let body: BodyPartConstant[] = [];

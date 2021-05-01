@@ -77,7 +77,6 @@ Creep.prototype.run = function() {
             if (this.pos.inRangeTo(enemies[key], 5)) {
                 let path = PathFinder.search(this.pos, enemies.map(c=>{return{pos:c.pos,range:10};}),{flee:true}).path;
                 this.moveByPath(path);
-                this.log('Running away');
                 moved = true;
                 break;
             }
@@ -106,7 +105,9 @@ Creep.prototype.run = function() {
     if (!moved) {
         roles[this.memory.role].run(this);
     }
-    this.memory.lastPos = currentPosString;
+    if (!this.fatigue) {
+        this.memory.lastPos = currentPosString;
+    }
 };
 
 Creep.prototype.log = function (content) {

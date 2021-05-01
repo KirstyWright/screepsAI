@@ -1,6 +1,7 @@
 import { TaskManager } from "taskmanager";
 import { SpawnModule } from "spawn";
-// let buildModule = require('build');
+import { BuildModule } from "build";
+
 export class Manager {
     memory: any;
     id: number;
@@ -96,7 +97,7 @@ export class Manager {
         SpawnModule.run(this.spawner);
         this.spawner.attemptSpawning();
 
-        // buildModule.run(this);
+        BuildModule.run(this);
 
         let towers = this.room.find<StructureTower>(
             FIND_MY_STRUCTURES, {

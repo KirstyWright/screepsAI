@@ -9,14 +9,14 @@
 
 import { Manager } from "manager";
 
-module.exports = {
-    pathfinderCostIgnoreRoads: {
+export class BuildModule {
+    static pathfinderCostIgnoreRoads = {
         plainCost: 2,
         swampCost: 10,
-        roomCallback(roomName: string) {
+        roomCallback(roomName: string): CostMatrix {
             let room = Game.rooms[roomName];
-            if (!room) return;
             let costs = new PathFinder.CostMatrix;
+            if (!room) return costs;
 
             room.find(FIND_STRUCTURES).forEach(function(struct) {
                 if (struct.structureType === STRUCTURE_ROAD) {
@@ -34,17 +34,18 @@ module.exports = {
             });
             return costs;
         }
-    },
-    run: function(manager: Manager) {
+    };
+
+    static run(manager: Manager) {
         if (manager.memory.buildQueue == undefined) {
             manager.memory.buildQueue = [];
         }
-        if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.name == manager.room.name).length > 1 && this.getCurrentSites(manager) < 2) {
+        if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.name == manager.room.name).length >= 1 && this.getCurrentSites(manager).length < 2) {
             this.buildExtensions(manager);
             this.createRoads(manager);
         }
-    },
-    getCurrentSites: function(manager: Manager) {
+    }
+    static getCurrentSites(manager: Manager) {
         let results: ConstructionSite[] = [];
         for (let key in manager.memory.rooms) {
             let room = Game.rooms[manager.memory.rooms[key]];
@@ -53,8 +54,8 @@ module.exports = {
             }
         }
         return results;
-    },
-    createRoads(manager: Manager) {
+    }
+    static createRoads(manager: Manager) {
         let search = manager.room.find(FIND_MY_STRUCTURES, {
             filter: { structureType: STRUCTURE_SPAWN }
         });
@@ -73,7 +74,7 @@ module.exports = {
             });
             for (let pathKey in pathFinder.path) {
                 let pos = pathFinder.path[pathKey];
-                if (!pos.lookFor(LOOK_STRUCTURES).length && !pos.lookFor(LOOK_CONSTRUCTION_SITES).length && this.getCurrentSites(manager) < 2) {
+                if (!pos.lookFor(LOOK_STRUCTURES).length && !pos.lookFor(LOOK_CONSTRUCTION_SITES).length && this.getCurrentSites(manager).length < 2) {
                     if (pos.roomName == spawn.room.name) {
                         manager.room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
                         roadsToBuild = roadsToBuild - 1;
@@ -103,8 +104,8 @@ module.exports = {
             }
         }
 
-    },
-    buildExtensions: function(manager: Manager) {
+    }
+    static buildExtensions (manager: Manager) {
         // extensions build
         let search = manager.room.find(FIND_MY_STRUCTURES, {
             filter: { structureType: STRUCTURE_SPAWN }
