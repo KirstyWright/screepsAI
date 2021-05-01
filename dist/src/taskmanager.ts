@@ -2,20 +2,27 @@ import { Manager } from "manager";
 import { BuildTask } from "task.build";
 import { RepairTask } from "task.repair";
 import { CollectTask } from "task.collect";
+import { ReserveTask } from "task.reserve";
 import { Task } from "task";
+import { ScoutTask } from "task.scout";
 
 export class TaskManager {
     manager: Manager;
     tasks: Record<string, Task>
     constructor(manager: Manager) {
         this.manager = manager;
+        this.tasks = {};
 
         this.loadFromMemory();
         this.getNewTasks();
-        this.tasks = {};
     }
     finish() {
         this.saveToMemory();
+    }
+    getTasksByType(type: string): Task[] {
+        return Object.values(this.tasks).filter( (task) => {
+            return task.type == type;
+        } );
     }
     getNewTasks() {
         let targets = this.manager.findInRooms(FIND_MY_CONSTRUCTION_SITES);
@@ -68,6 +75,41 @@ export class TaskManager {
             }
         }
 
+
+        let roomsToReserve: string[] = [];
+        for (let key in this.manager.memory.sources) {
+            let sourceInformation = this.manager.memory.sources[key];
+            if (!roomsToReserve.includes(sourceInformation.pos.roomName)) {
+                roomsToReserve.push(sourceInformation.pos.roomName);
+                let roomObject = Game.rooms[sourceInformation.pos.roomName];
+                if (roomObject && roomObject.controller && roomObject.controller.my) {
+                    continue;  // I own the room
+                } else {
+                    if (roomObject && !roomObject.controller) {
+                        continue;  // Can't claim room
+                    }
+                    if (!roomObject || roomObject.controller) {  // need to scout
+                        if (roomObject && roomObject.controller) {
+                            if (roomObject.controller.reservation && roomObject.controller.reservation.ticksToEnd > 2500) {
+                                console.log('2500 ticks left so dont bother for room '+roomObject.name);
+                                continue;  // 2500 ticks left on reserving so don't bother
+                            }
+                        }
+                        let task = new ReserveTask(sourceInformation.pos.roomName)
+                        if (!this.tasks[task.hash]) {
+                            this.tasks[task.hash] = task;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        if (!Memory.temp || Memory.temp != 'ab') {
+            Memory.temp = 'ab';
+            let task = new ScoutTask('W43N28');
+            this.tasks[task.hash] = task;
+        }
     }
     loadFromMemory() {
         this.tasks = {};
@@ -83,6 +125,12 @@ export class TaskManager {
                     break;
                 case "collect":
                     task = CollectTask.buildFromMemory(memoryTask)
+                    break;
+                case "reserve":
+                    task = ReserveTask.buildFromMemory(memoryTask)
+                    break;
+                case "scout":
+                    task = ScoutTask.buildFromMemory(memoryTask)
                     break;
                 default:
                     console.log("Invalid task " + hash);

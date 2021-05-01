@@ -7,8 +7,13 @@ const spawnRoles: Record< string, BodyPartConstant[]> = {
     'hauler': [MOVE, CARRY, CARRY],
     'claimer': [MOVE, CLAIM],
     'milita': [TOUGH, RANGED_ATTACK, MOVE, MOVE],
-    'distributor': [MOVE, CARRY, CARRY]
+    'distributor': [MOVE, CARRY, CARRY],
+    'scout': [MOVE, WORK]
 };
+
+const spawnPriority = [
+    'harvester', 'milita', 'hauler', 'miner', 'distributor', 'builder', 'upgrader', 'claimer', 'scout'
+];
 
 Spawn.prototype.queueCreep = function(data) {
     if (this.manager.memory.spawnQueue == undefined) {
@@ -29,76 +34,97 @@ Spawn.prototype.attemptSpawning = function() {
     if (this.spawning) {
         return;
     }
-    if (this.manager.memory.spawnQueue && this.manager.memory.spawnQueue.length > 0) {
-        for (let key in this.manager.memory.spawnQueue) {
-            let creep = this.manager.memory.spawnQueue[key];
-            if (creep.spawned) {
-                continue;
+
+    if (!this.manager.memory.spawnQueue) {
+        return;
+    }
+
+    let queue = this.manager.memory.spawnQueue.sort( (a: any, b: any) => {
+        return spawnPriority.indexOf(a.role) - spawnPriority.indexOf(b.role);
+    } )
+
+    // // Emergency harvester
+    // if (
+    //     Object.values(Game.creeps).filter((creep) => creep.memory.managerId == this.manager.id && (
+    //         creep.memory.role == 'miner' || creep.memory.role == 'hauler' || creep.memory.role == 'harvester'
+    //     )).length == 0
+    // ) {
+    //     console.log('Need emergency harvester');
+    //     this.spawnCreep([WORK, MOVE, CARRY], this.generateCreepName('harvester'), {
+    //         memory: {
+    //             role: 'harvester',
+    //             managerId: this.manager.id
+    //         }
+    //     });
+    // }
+
+    for (let key in queue) {
+        let creep = queue[key];
+        if (creep.spawned) {
+            continue;
+        }
+        let response = -20;
+        let name = creep.name;
+        creep.data.spawner = this.name;
+        if (creep.role && spawnRoles[creep.role]) {
+
+            let costPerMinimumParts = 0;
+
+            for (var i = 0; i < spawnRoles[creep.role].length; i++) {
+                costPerMinimumParts = costPerMinimumParts + BODYPART_COST[spawnRoles[creep.role][i]];
             }
-            let response = -20;
-            let name = creep.name;
-            creep.data.spawner = this.name;
-            if (creep.role && spawnRoles[creep.role]) {
+            let loop = 1;
 
-                let costPerMinimumParts = 0;
-
-                for (var i = 0; i < spawnRoles[creep.role].length; i++) {
-                    costPerMinimumParts = costPerMinimumParts + BODYPART_COST[spawnRoles[creep.role][i]];
+            let numberOfDistributors = Object.values(Game.creeps).filter((creep) => creep.memory.managerId == this.manager.id && creep.memory.role == 'distributor').length;
+            // console.log(numberOfDistributors);
+            while (true) {
+                loop = loop + 1;
+                let cost = costPerMinimumParts * loop;
+                // if (cost >= this.room.energyAvailable) {
+                if (loop > 3 && creep.role == 'miner') {
+                    break; // 5w parts will exhaust a resource
                 }
-                let loop = 1;
-
-                let maxEnergy = 300 + (50 * this.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return structure.structureType == STRUCTURE_EXTENSION;
-                    }
-                }).length);
-
-                while (true) {
-                    loop = loop + 1;
-                    let cost = costPerMinimumParts * loop;
-                    // if (cost >= this.room.energyAvailable) {
-                    if (maxEnergy <= cost) {
+                if (loop > 1 && creep.role == 'scout') {
+                    break;
+                }
+                if (this.room.energyCapacityAvailable <= cost) {
+                    // If cost >= the energy the spawner & extensions can provide
+                    if (this.room.storage) {
+                        // if we have storage in the room
+                        if (this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) <= cost) {
+                            // If storage exists and has less energy than is needed to spawn the creep
+                            break;
+                        } else if  (numberOfDistributors < 1) {
+                            // if Storage exists and there are no distributors
+                            break;
+                        }
+                    } else {
                         break;
                     }
-                    //  else if (!this.room.storage && cost >= this.room.energyAvailable) {
-                    //     break // if I have more than the cost
-                    // }
                 }
-                let body: BodyPartConstant[] = [];
-                for (var x = 1; x < loop; x++) {
-                    body = body.concat(spawnRoles[creep.role]);
-                }
-                response = this.spawnCreep(body, name, {
-                    memory: creep.data
-                });
+            }
+            let body: BodyPartConstant[] = [];
+            for (var x = 1; x < loop; x++) {
+                body = body.concat(spawnRoles[creep.role]);
+            }
+            response = this.spawnCreep(body, name, {
+                memory: creep.data
+            });
 
-                // for (let key in sortable) {
-                //     let row = sortable[key];
-                //     if (row.cost <= this.room.energyAvailable) {
-                //         response = this.spawnCreep(spawnRoles[creep.role][sortable[key].cost], name, {
-                //             memory: creep.data
-                //         });
-                //         break;
-                //     }
-                //
-                //     if (this.room.storage && this.room.storage.store[RESOURCE_ENERGY] >= row.cost) {
-                //         break;
-                //     }
-                // }
-            } else {
-                response = this.spawnCreep(creep.parts, name, {
-                    memory: creep.data
-                });
-            }
-            if (response == 0) {
-                creep.spawned = true;
-                creep.name = name;
-                creep.spawner = this.name;
-                this.manager.memory.spawnQueue[0] = creep;
-            }
-            break;
+        } else {
+            response = this.spawnCreep(creep.parts, name, {
+                memory: creep.data
+            });
         }
+        if (response == 0) {
+            creep.spawned = true;
+            creep.name = name;
+            creep.spawner = this.name;
+            queue[key] = creep;
+        }
+        break;
     }
+    this.manager.memory.spawnQueue = queue; // might as well overwrite in order
 };
 Spawn.prototype.generateCreepName = function(role) {
     if (Memory.lastCreepId == undefined) {

@@ -7,7 +7,7 @@ export class RoleHarvester {
         }
 
         if (!creep.memory.emptying) {
-            creep.getEnergy(false, true, undefined);
+            creep.getEnergy(false, true);
         } else {
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {

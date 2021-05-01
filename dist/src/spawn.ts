@@ -84,7 +84,11 @@ export class SpawnModule {
                 role: 'hauler'
             });
         }
-        if (roles['builder'] < Math.min(1, Spawner.room.find(FIND_CONSTRUCTION_SITES).length / 10)) {
+        if (roles['builder'] < Math.max(1, (
+            Spawner.manager.taskManager.getTasksByType('build').length
+            + Spawner.manager.taskManager.getTasksByType('repair').length
+        ) / 30)) {
+        // if (roles['builder'] < Math.min(1, Spawner.room.find(FIND_CONSTRUCTION_SITES).length / 10)) {
             Spawner.queueCreep({
                 role: 'builder'
             });
@@ -105,28 +109,29 @@ export class SpawnModule {
             });
         }
 
-
-        if (Spawner.manager.memory.spawnQueue.length < 2) {
-            if (Game.flags['claim'] && roles['claimer'] < 1) {
+        if (Spawner.manager.memory.spawnQueue.length < 2 && Spawner.manager.taskManager.getTasksByType('reserve').length > 0) {
+            if (roles['claimer'] < 1) {
                 Spawner.queueCreep({
                     role: 'claimer'
                 });
             }
         }
+        if (Spawner.manager.memory.spawnQueue.length < 2 && Spawner.manager.taskManager.getTasksByType('scout').length > 0) {
+            if (roles['scout'] < 1) {
+                Spawner.queueCreep({
+                    role: 'scout'
+                });
+            }
+        }
         // //
-        // if (!Memory.temp || Memory.temp != 'g') {
-        //     Memory.temp = 'g';
-        //     Spawner.queueCreep({
-        //         role:'builder'
-        //     });
-        // }
-        // if (! ||  != 'b') {
+
+        // if (!Memory.temp || Memory.temp != 'b') {
         //     Memory.temp = 'b';
-        //     Spawner.queueCreep({
-        //         role:'milita',
-        //         category:'raid',
-        //         targetRoom: 'W43N29'
-        //     });
+        //     // Spawner.queueCreep({
+        //     //     role:'milita',
+        //     //     category:'raid',
+        //     //     targetRoom: 'W43N29'
+        //     // });
         // }
 
     }

@@ -2,6 +2,7 @@ import "prototype_creep";
 import "prototype_spawner";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { Manager } from "manager";
+import { Stats } from "stats";
 // require("prototype_creep.ts");
 // require("prototype_spawner.ts");
 
@@ -100,7 +101,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     for (let key in managers) {
         managers[key].finish();
     }
-    // exportStats();
+    Stats.exportStats(managers);
 
     if (Game.cpu.bucket >= 10000) {
         Game.cpu.generatePixel();

@@ -6,6 +6,8 @@ import { RoleHauler } from 'role.hauler';
 import { RoleClaimer } from 'role.claimer';
 import { RoleMilita } from 'role.milita';
 import { RoleDistributor } from 'role.distributor';
+import { RoleScout } from 'role.scout';
+import { Helper } from 'helper';
 
 export { }
 
@@ -17,6 +19,7 @@ var roles: Record<string, any> = {
     'hauler': RoleHauler,
     'claimer': RoleClaimer,
     'milita': RoleMilita,
+    'scout': RoleScout,
     'distributor': RoleDistributor
 };
 var roleEmoji: Record<string, string> = {
@@ -27,11 +30,29 @@ var roleEmoji: Record<string, string> = {
     'hauler':'🚚',
     'claimer': '🏴‍☠️',
     'milita': '⚔️',
+    'scout': '⚔️',
     'distributor': '🧱'
 };
 
 Creep.prototype.run = function() {
-    new RoomVisual(this.room.name).text(roleEmoji[this.memory.role], this.pos.x + 0.8, this.pos.y+0.2, {
+
+    if (this.spawning) {
+        return;
+    }
+
+    // if idle movement
+    if (!this.memory.lastPos) {
+        this.memory.lastPos = null;
+    }
+    let currentPosString = Helper.savePos(this.pos);
+    if (this.memory.lastPos === currentPosString) {
+        this.idleMovement = true;
+    } else {
+        this.idleMovement = false;
+    }
+
+
+    new RoomVisual(this.room.name).text(roleEmoji[this.memory.role], this.pos.x , this.pos.y + 0.1, {
         color: 'white',
         font: 0.4
     });
@@ -64,9 +85,28 @@ Creep.prototype.run = function() {
 
         // Spawner.manager.memory.rooms
     }
+
+    // <StructureSpawn>
+    if (this.idleMovement) {
+        let spawns = this.room.find(FIND_MY_SPAWNS);
+        for (let key in spawns) {
+            let spawner = spawns[key];
+            if (this.pos.inRangeTo(spawner.pos, 1)) {
+                let path = PathFinder.search(this.pos, {pos:spawner.pos,range:2},{flee:true}).path;
+                this.moveByPath(path);
+                moved = true;
+                break;
+            }
+        }
+    }
+
+
+
+
     if (!moved) {
         roles[this.memory.role].run(this);
     }
+    this.memory.lastPos = currentPosString;
 };
 
 Creep.prototype.log = function (content) {

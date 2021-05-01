@@ -1,20 +1,25 @@
 // example declaration file - remove these and add your own custom typings
 
+// import { Manager } from "manager";
+// import { Task } from "task";
+
 // memory extension samples
 interface CreepMemory {
-    targetRoom: string;
-    category: string;
-    targetId: string|null;
-    emptying: boolean;
-    taskHash: any;
-    sourceId: null | string;
-    respawn_complete: boolean;
+    targetRoom?: string;
+    category?: string;
+    targetId?: string|null;
+    emptying?: boolean;
+    taskHash?: any;
+    sourceId?: null | string;
+    respawn_complete?: boolean;
     role: string;
-    room: string;
+    room?: string;
+    lastPos?: string | null;
     managerId: number;
 }
 
 interface Creep {
+    idleMovement: boolean;
     findInManagerRooms: (type: any, opts: any) => any[];
     moveToPos: (pos: any, opts?: any) => 0 | -1 | -4 | -11 | -12 | -2 | -7;
     getEnergy: (useContainer?: any, useSource?: any, roomName?: any) => any;

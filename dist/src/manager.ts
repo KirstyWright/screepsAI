@@ -139,10 +139,10 @@ export class Manager {
             }
         });
 
-        if (!Memory.temp || Memory.temp != 'v') {
-            Memory.temp = 'v';
-            this.addRoom("W43N28");
-        }
+        // if (!Memory.temp || Memory.temp != 'v') {
+        //     Memory.temp = 'v';
+        //     this.addRoom("W43N28");
+        // }
 
 
     }
