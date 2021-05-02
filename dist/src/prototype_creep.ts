@@ -23,11 +23,11 @@ var roles: Record<string, any> = {
     'distributor': RoleDistributor
 };
 var roleEmoji: Record<string, string> = {
-    'harvester':'⛏️',
-    'upgrader':"🔬",
-    'builder':'🛠️',
-    'miner':'⚠️',
-    'hauler':'🚚',
+    'harvester': '⛏️',
+    'upgrader': "🔬",
+    'builder': '🛠️',
+    'miner': '⚠️',
+    'hauler': '🚚',
     'claimer': '🏴‍☠️',
     'milita': '⚔️',
     'scout': '⚔️',
@@ -52,7 +52,7 @@ Creep.prototype.run = function() {
     }
 
 
-    new RoomVisual(this.room.name).text(roleEmoji[this.memory.role], this.pos.x , this.pos.y + 0.1, {
+    new RoomVisual(this.room.name).text(roleEmoji[this.memory.role], this.pos.x, this.pos.y + 0.1, {
         color: 'white',
         font: 0.4
     });
@@ -75,7 +75,7 @@ Creep.prototype.run = function() {
         let enemies = this.room.find(FIND_HOSTILE_CREEPS);
         for (let key in enemies) {
             if (this.pos.inRangeTo(enemies[key], 5)) {
-                let path = PathFinder.search(this.pos, enemies.map(c=>{return{pos:c.pos,range:10};}),{flee:true}).path;
+                let path = PathFinder.search(this.pos, enemies.map(c => { return { pos: c.pos, range: 10 }; }), { flee: true }).path;
                 this.moveByPath(path);
                 moved = true;
                 break;
@@ -91,9 +91,47 @@ Creep.prototype.run = function() {
         for (let key in spawns) {
             let spawner = spawns[key];
             if (this.pos.inRangeTo(spawner.pos, 1)) {
-                let path = PathFinder.search(this.pos, {pos:spawner.pos,range:2},{flee:true}).path;
-                this.moveByPath(path);
+                let route = PathFinder.search(this.pos, { pos: spawner.pos, range: 2 }, {
+                    flee: true, roomCallback: function(roomName) {
+                        let costMatrix = new PathFinder.CostMatrix();
+
+                        let room = Game.rooms[roomName];
+                        if (!room) {
+                            return false;
+                        }
+
+                        room.find(FIND_STRUCTURES).forEach(function(struct) {
+                            if (struct.structureType !== STRUCTURE_CONTAINER  && struct.structureType !== STRUCTURE_ROAD &&
+                                (struct.structureType !== STRUCTURE_RAMPART ||
+                                    !struct.my)) {
+                                // Can't walk through non-walkable buildings
+                                costMatrix.set(struct.pos.x, struct.pos.y, 255);
+                            }
+                        });
+
+                        room.find(FIND_CREEPS).forEach(function(creep) {
+                            costMatrix.set(creep.pos.x, creep.pos.y, 255);
+                        });
+                        return costMatrix;
+                    }
+                });
+                let path = route.path;
+                this.log(String(this.moveByPath(path)));
+                this.log(String(path));
                 moved = true;
+
+                new RoomVisual(this.room.name).text('I', this.pos.x, this.pos.y + 0.1, {
+                    color: 'white',
+                    font: 0.4
+                });
+
+                if (path.length > 0) {
+                    new RoomVisual(this.room.name).text('R', path[0].x, path[0].y + 0.1, {
+                        color: 'white',
+                        font: 0.4
+                    });
+                }
+
                 break;
             }
         }
@@ -110,15 +148,15 @@ Creep.prototype.run = function() {
     }
 };
 
-Creep.prototype.log = function (content) {
+Creep.prototype.log = function(content) {
     console.log("Creep:" + this.name + ': ' + String(content));
 };
 
-Creep.prototype.getManagerMemory = function () {
+Creep.prototype.getManagerMemory = function() {
     return Memory.manager[0];
 };
 
-Creep.prototype.getEnergy = function(useContainer? :boolean, useSource?: boolean, roomName?: string) {
+Creep.prototype.getEnergy = function(useContainer?: boolean, useSource?: boolean, roomName?: string) {
     let container;
     let room = null;
     if (roomName) {
@@ -126,9 +164,9 @@ Creep.prototype.getEnergy = function(useContainer? :boolean, useSource?: boolean
     }
     if (useContainer) {
         let obj = {
-            filter: (i: StructureContainer|StructureStorage) => {
+            filter: (i: StructureContainer | StructureStorage) => {
                 return (
-                    (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store.energy > (['distributor'].includes(this.memory.role) ? 0 :  500)
+                    (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store.energy > (['distributor'].includes(this.memory.role) ? 0 : 500)
                 );
             }
         };
@@ -153,7 +191,7 @@ Creep.prototype.getEnergy = function(useContainer? :boolean, useSource?: boolean
                 return this.getEnergy(useContainer, useSource, this.getManagerMemory().room);
             }
             let obj = {
-                filter: (i :StructureSpawn) => {
+                filter: (i: StructureSpawn) => {
                     return (
                         (i.structureType == STRUCTURE_SPAWN) && i.store.energy > 100
                     );
@@ -208,7 +246,7 @@ Creep.prototype.getEnergy = function(useContainer? :boolean, useSource?: boolean
                 }
             }
 
-            let target: Source|null = Game.getObjectById(this.memory.sourceId);
+            let target: Source | null = Game.getObjectById(this.memory.sourceId);
             if (target) {
                 if (this.harvest(target) == ERR_NOT_IN_RANGE) {
                     this.moveToPos(target, {
@@ -243,7 +281,7 @@ Creep.prototype.moveToPos = function(pos, opts) {
     return this.moveTo(pos, opts);
 };
 
-Creep.prototype.findInManagerRooms = function (type, opts) {
+Creep.prototype.findInManagerRooms = function(type, opts) {
     let results: Object[] = [];
     for (let key in this.manager.memory.rooms) {
         let room = Game.rooms[this.manager.memory.rooms[key]];

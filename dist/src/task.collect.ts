@@ -103,10 +103,9 @@ export class CollectTask extends Task {
         if (("store" in this.origin) && "structureType" in this.origin) {
             return false;  // If it has no storage but is a structure we cannot withdraw from it
         }
-
         if (
-            (<StructureContainer>this.origin).store !== undefined
-            && (<StructureContainer>this.origin).store.getUsedCapacity(RESOURCE_ENERGY) <= 0
+            (<StructureContainer|Ruin|Tombstone>this.origin).store !== undefined
+            && (<StructureContainer|Ruin|Tombstone>this.origin).store.getUsedCapacity(RESOURCE_ENERGY) <= 0
         ) {
             // If structure has a store (ie is a structure) && has no energy in it
             return false;

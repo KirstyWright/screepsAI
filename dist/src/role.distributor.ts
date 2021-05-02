@@ -7,7 +7,7 @@ export class RoleDistributor {
         }
 
         if (!creep.memory.emptying) {
-            creep.getEnergy(true, false, undefined);
+            creep.getEnergy(true, false);
         } else {
             let targetRoom = creep.manager.room;
             if (creep.room.name != targetRoom.name) {

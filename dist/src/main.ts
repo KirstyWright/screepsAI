@@ -68,6 +68,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
     //         },
     //     ]
     // }]
+
+
     if (!Memory.manager || Memory.manager.length == 0) {
         if (Game.spawns['Spawn1'] == undefined) {
             return;

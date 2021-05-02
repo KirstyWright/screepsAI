@@ -68,6 +68,11 @@ export class BuildModule {
             if (roadsToBuild <= 0) {
                 break;
             }
+
+            if (!Game.rooms[sources[key].pos.roomName]) {
+                continue;
+            }
+
             let pathFinder = PathFinder.search(new RoomPosition(sources[key].pos.x, sources[key].pos.y, sources[key].pos.roomName), {
                 pos: spawn.pos,
                 range: 1
