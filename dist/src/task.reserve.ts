@@ -22,7 +22,7 @@ export class ReserveTask extends Task {
         this.type = 'reserve';
         this.roles = ['claimer'];
         this.target = target;
-        this.hash = String("reserve" + target.id).hashCode();
+        this.hash = String("reserve" + target).hashCode();
     }
 
     storageData(): Record<string, any> {

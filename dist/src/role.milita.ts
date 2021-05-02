@@ -15,7 +15,8 @@ export class RoleMilita {
                         visualizePathStyle: {
                             stroke: '#ff5733'
                         },
-                        ignoreCreeps: true
+                        ignoreCreeps: true,
+                        ignoreRoads: true
                     });
                 } else {
                     return this.raid(creep);
@@ -83,6 +84,7 @@ export class RoleMilita {
                     creep.attack(anotherTarget);
                 }
                 creep.moveToPos(target, {
+                    ignoreRoads: true,
                     visualizePathStyle: {
                         stroke: '#ff5733'
                     }
@@ -107,6 +109,7 @@ export class RoleMilita {
                     let spawns = creep.room.find(FIND_MY_SPAWNS);
                     if (spawns.length > 0) {
                         creep.moveToPos(spawns[0].pos, {
+                            ignoreRoads: true,
                             range: 5
                         });
                     }

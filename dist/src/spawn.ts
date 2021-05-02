@@ -13,7 +13,8 @@ export class SpawnModule {
             hauler: 0,
             distributor: 0,
             milita: 0,
-            claimer: 0
+            claimer: 0,
+            scout: 0
         };
         let creepsInRoom = Spawner.manager.creeps;
         for (let key in creepsInRoom) {
@@ -93,30 +94,31 @@ export class SpawnModule {
                 role: 'builder'
             });
         }
-        // if (roles['upgrader'] < Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY] - 2000 ) / 1000))) {
-        if (roles['upgrader'] < 1) {
-            Spawner.queueCreep({
-                role: 'upgrader'
-            });
+        if (Spawner.room && Spawner.room.storage) {
+            if (roles['upgrader'] < Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 10000))) {
+                Spawner.queueCreep({
+                    role: 'upgrader'
+                });
+            }
         }
         if (roles['distributor'] < Math.ceil(Math.max(Spawner.room.find(FIND_MY_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_EXTENSION;
             }
-        }).length / 10)) && roles['hauler'] > 0) {
+        }).length / 15)) && roles['hauler'] > 0) {
             Spawner.queueCreep({
                 role: 'distributor'
             });
         }
 
-        if (Spawner.manager.memory.spawnQueue.length < 2 && Spawner.manager.taskManager.getTasksByType('reserve').length > 0) {
+        if (Spawner.manager.taskManager.getTasksByType('reserve').length > 0) {
             if (roles['claimer'] < 1) {
                 Spawner.queueCreep({
                     role: 'claimer'
                 });
             }
         }
-        if (Spawner.manager.memory.spawnQueue.length < 2 && Spawner.manager.taskManager.getTasksByType('scout').length > 0) {
+        if (Spawner.manager.taskManager.getTasksByType('scout').length > 0) {
             if (roles['scout'] < 1) {
                 Spawner.queueCreep({
                     role: 'scout'

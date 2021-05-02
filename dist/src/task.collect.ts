@@ -3,14 +3,14 @@ export class CollectTask extends Task {
     type: string;
     roles: string[];
     hash: number;
-    origin: Structure | Resource
+    origin: Structure | Resource | Tombstone | Ruin
     destination: Structure
     amount: number;
 
 
     static buildFromMemory(memoryRecord: Record<string, any>) {
 
-        let origin = <Structure | Resource | null>Game.getObjectById(memoryRecord.origin);
+        let origin = <Structure | Tombstone | Resource | Ruin | null>Game.getObjectById(memoryRecord.origin);
         let destination = <Structure | null>Game.getObjectById(memoryRecord.destination);
 
         if (!origin || !destination) {
@@ -25,7 +25,7 @@ export class CollectTask extends Task {
     }
 
 
-    constructor(origin: Structure | Resource, destination: Structure, amount: number) {
+    constructor(origin: Structure | Tombstone | Ruin | Resource, destination: Structure, amount: number) {
         super()
         this.type = 'collect';
         this.roles = ['hauler'];
@@ -34,6 +34,7 @@ export class CollectTask extends Task {
         this.origin = origin; // StructureContainer, StructureStorage, Resource
         this.destination = destination; // StructureContainer, StructureStorage
         this.amount = amount;
+
     }
     storageData(): Record<string, any> {
         return {
@@ -44,7 +45,7 @@ export class CollectTask extends Task {
             amount: this.amount
         }
     }
-    run(creep: Creep) {
+    run(creep: Creep): void {
         if (creep.memory.emptying && creep.store.getUsedCapacity() == 0) {
             creep.memory.emptying = false;
         } else if (creep.store.getFreeCapacity(RESOURCE_ENERGY) <= 0) {
@@ -62,10 +63,12 @@ export class CollectTask extends Task {
                 });
             } else {
                 let pickup;
-                if ("structureType" in this.origin) {
+                if ("store" in this.origin) {
                     pickup = creep.withdraw(this.origin, RESOURCE_ENERGY);
-                } else {
+                } else if ('amount' in this.origin){
                     pickup = creep.pickup(this.origin);
+                } else {
+                    return; // Should never get here as should be picked up by isValid
                 }
                 if (pickup == ERR_NOT_IN_RANGE) {
                     creep.moveToPos(this.origin, {
@@ -86,7 +89,7 @@ export class CollectTask extends Task {
             }
         }
     }
-    isValid() {
+    isValid(): boolean {
         if (this.origin == undefined || this.origin == null) {
             return false;
         }
@@ -94,6 +97,18 @@ export class CollectTask extends Task {
             return false;
         }
         if (this.amount <= 0) {
+            return false;
+        }
+
+        if (("store" in this.origin) && "structureType" in this.origin) {
+            return false;  // If it has no storage but is a structure we cannot withdraw from it
+        }
+
+        if (
+            (<StructureContainer>this.origin).store !== undefined
+            && (<StructureContainer>this.origin).store.getUsedCapacity(RESOURCE_ENERGY) <= 0
+        ) {
+            // If structure has a store (ie is a structure) && has no energy in it
             return false;
         }
         return true;

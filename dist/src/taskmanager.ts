@@ -39,8 +39,9 @@ export class TaskManager {
                 if (!("hits" in object) || !("hitsMax" in object) || !("structureType" in object)) {
                     return false;
                 }
+                let hits = object.hitsMax * (1 - 0.1);
                 return (
-                    (object.hits < object.hitsMax &&
+                    (object.hits < hits &&
                         (object.structureType !== STRUCTURE_WALL && object.structureType !== STRUCTURE_RAMPART)
                     )
                 );
@@ -55,11 +56,16 @@ export class TaskManager {
         }
 
         // let list = this.manager.room.find(FIND_DROPPED_RESOURCES, {
-        let list = this.manager.findInRooms(FIND_DROPPED_RESOURCES, {
+        let list: (Resource|Ruin|Tombstone)[] = [];
+        list = this.manager.findInRooms(FIND_DROPPED_RESOURCES, {
             filter: (d) => {
                 return d.resourceType == RESOURCE_ENERGY;
             }
         });
+
+        list = list.concat(this.manager.findInRooms(FIND_RUINS));
+        list = list.concat(this.manager.findInRooms(FIND_TOMBSTONES));
+
         let destination = null;
         if (this.manager.room.storage) {
             destination = this.manager.room.storage;
@@ -69,7 +75,16 @@ export class TaskManager {
         }
 
         for (let key in list) {
-            let task = new CollectTask(list[key], destination, list[key].amount)
+            let item = list[key];
+            let amount = 0;
+
+            if ("amount" in item) {
+                amount = item.amount;
+            } else if ("store" in item) {
+                amount = item.store.getUsedCapacity(RESOURCE_ENERGY);
+            }
+
+            let task = new CollectTask(list[key], destination, amount);
             if (!this.tasks[task.hash]) {
                 this.tasks[task.hash] = task;
             }
@@ -169,6 +184,8 @@ export class TaskManager {
     completeTask(hash: string) {
         delete this.tasks[hash];
     }
-    log(content: string) {}
+    log(content: string) {
+        console.log(content);
+    }
     init() {}
 }

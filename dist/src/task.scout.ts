@@ -35,35 +35,30 @@ export class ScoutTask extends Task {
     }
     run(creep: Creep) {
         creep.moveToPos(new RoomPosition(25, 25, this.target));
-
         if (creep.pos.roomName === this.target) {
             // if (creep.manager.rooms.includes(this.target)) {
-            creep.manager.addRoom(this.target);
-            creep.log("Adding room "+this.target)
+            // creep.manager.addRoom(this.target);
+            // creep.log("Adding room "+this.target)
             // }
         }
 
     }
     isValid() {
         if (this.target == undefined || this.target == null) {
-            console.log('1:valid');
             return false;
         }
         if (Game.rooms[this.target] && Game.rooms[this.target].controller) {
             let room = Game.rooms[this.target];
             if (room.controller) {
                 if (room.controller.my) {
-                    console.log('2:valid');
                     return false;
                 }
                 if (room.controller.reservation) {
-                    console.log('3:valid');
                     return false;
                 }
 
             }
         }
-        console.log('4:valid');
         return true;
     }
 }
