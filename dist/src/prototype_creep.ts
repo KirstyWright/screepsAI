@@ -116,8 +116,7 @@ Creep.prototype.run = function() {
                     }
                 });
                 let path = route.path;
-                this.log(String(this.moveByPath(path)));
-                this.log(String(path));
+                this.moveByPath(path);
                 moved = true;
 
                 new RoomVisual(this.room.name).text('I', this.pos.x, this.pos.y + 0.1, {
@@ -126,9 +125,9 @@ Creep.prototype.run = function() {
                 });
 
                 if (path.length > 0) {
-                    new RoomVisual(this.room.name).text('R', path[0].x, path[0].y + 0.1, {
+                    new RoomVisual(this.room.name).text(this.name, path[0].x, path[0].y + 0.1, {
                         color: 'white',
-                        font: 0.4
+                        font: 0.2
                     });
                 }
 

@@ -63,6 +63,7 @@ interface ManagerMemorySources {
     sourceId: Id<Source>;
     miners: Array<String>,
     pos: RoomPosition
+    containerId: Id<StructureContainer> | null
 }
 
 // `global` extension samples

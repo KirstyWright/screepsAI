@@ -62,6 +62,7 @@ export class CollectTask extends Task {
                     }
                 });
             } else {
+
                 let pickup;
                 if ("store" in this.origin) {
                     pickup = creep.withdraw(this.origin, RESOURCE_ENERGY);

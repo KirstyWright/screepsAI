@@ -66,13 +66,31 @@ export class TaskManager {
         list = list.concat(this.manager.findInRooms(FIND_RUINS));
         list = list.concat(this.manager.findInRooms(FIND_TOMBSTONES));
 
-        let destination = null;
+
+        let destination: StructureStorage | null = null;
         if (this.manager.room.storage) {
             destination = this.manager.room.storage;
         } else {
             console.log('No Storage!!!');
             return;
         }
+
+        this.manager.memory.sources.forEach((element: ManagerMemorySources) => {
+            if (!element.containerId) {
+                return;
+            }
+            let container = Game.getObjectById(element.containerId);
+            if (container && container.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && destination) {
+                let task = new CollectTask(container, destination, container.store.getUsedCapacity(RESOURCE_ENERGY));
+                if (!this.tasks[task.hash]) {
+                    this.tasks[task.hash] = task;
+                } else {
+                    (<CollectTask>this.tasks[task.hash]).amount = container.store.getUsedCapacity(RESOURCE_ENERGY);
+                }
+            }
+        });
+
+
 
         for (let key in list) {
             let item = list[key];
@@ -87,6 +105,8 @@ export class TaskManager {
             let task = new CollectTask(list[key], destination, amount);
             if (!this.tasks[task.hash]) {
                 this.tasks[task.hash] = task;
+            } else {
+                (<CollectTask>this.tasks[task.hash]).amount = amount;
             }
         }
 
@@ -120,11 +140,11 @@ export class TaskManager {
             }
         }
 
-        if (!Memory.temp || Memory.temp != 'ab') {
-            Memory.temp = 'ab';
-            let task = new ScoutTask('W43N28');
-            this.tasks[task.hash] = task;
-        }
+        // if (!Memory.temp || Memory.temp != 'ab') {
+        //     Memory.temp = 'ab';
+        //     let task = new ScoutTask('W43N28');
+        //     this.tasks[task.hash] = task;
+        // }
     }
     loadFromMemory() {
         this.tasks = {};
