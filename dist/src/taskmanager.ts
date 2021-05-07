@@ -59,7 +59,7 @@ export class TaskManager {
         let list: (Resource|Ruin|Tombstone)[] = [];
         list = this.manager.findInRooms(FIND_DROPPED_RESOURCES, {
             filter: (d) => {
-                return d.resourceType == RESOURCE_ENERGY;
+                return d.resourceType == RESOURCE_ENERGY && d.amount > 50;
             }
         });
 

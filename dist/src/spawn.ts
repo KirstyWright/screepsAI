@@ -82,7 +82,7 @@ export class SpawnModule {
             }
         }
 
-        if (roles['hauler'] < roles['miner']) {
+        if (roles['hauler'] < (roles['miner'] + 2 )) {
             Spawner.queueCreep({
                 role: 'hauler'
             });

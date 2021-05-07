@@ -100,8 +100,7 @@ export class CollectTask extends Task {
         if (this.amount <= 0) {
             return false;
         }
-
-        if (("store" in this.origin) && "structureType" in this.origin) {
+        if (!("store" in this.origin) && "structureType" in this.origin) {
             return false;  // If it has no storage but is a structure we cannot withdraw from it
         }
         if (
