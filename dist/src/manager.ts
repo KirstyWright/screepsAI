@@ -7,7 +7,7 @@ export class Manager {
     id: number;
     room: Room;
     creeps: Record<string, Creep> = {};
-    spawner: StructureSpawn;
+    spawners: StructureSpawn[];
     taskManager: TaskManager;
 
     constructor(id: number) {
@@ -18,8 +18,10 @@ export class Manager {
 
         let search = this.room.find(FIND_MY_SPAWNS);
 
-        this.spawner = search[0];
-        this.spawner.manager = this;
+        this.spawners = search;
+        this.spawners.forEach(spawner => {
+            spawner.manager = this;
+        });
         this.taskManager = new TaskManager(this)
     }
     log(content: any) {
@@ -94,8 +96,53 @@ export class Manager {
         }
     }
     run() {
-        SpawnModule.run(this.spawner);
-        this.spawner.attemptSpawning();
+        // let count = 0;
+        // this.memory.sources.forEach((element: ManagerMemorySources) => {
+        //     count = count + 1;
+        //     if (!element.containerId) {
+        //         return;
+        //     }
+        //     // console.log(element.sourceId);
+        //     let source = Game.getObjectById(element.containerId);
+        //     let storage = this.room.storage ? this.room.storage.pos : this.spawners[0].pos
+        //     if (source && storage) {
+        //         let path = PathFinder.search(storage, source.pos, {
+        //             plainCost: 2,
+        //             swampCost: 3,
+        //             roomCallback: (roomName: string) => {
+        //                 let costMatrix = new PathFinder.CostMatrix;
+        //                 let room = Game.rooms[roomName];
+        //                 if (!room) {
+        //                     return false;
+        //                 }
+        //
+        //                 room.find(FIND_STRUCTURES).forEach(function(struct) {
+        //                     if (struct.structureType !== STRUCTURE_CONTAINER  && struct.structureType !== STRUCTURE_ROAD &&
+        //                         (struct.structureType !== STRUCTURE_RAMPART ||
+        //                             !struct.my)) {
+        //                         // Can't walk through non-walkable buildings
+        //                         costMatrix.set(struct.pos.x, struct.pos.y, 255);
+        //                     } else if (struct.structureType === STRUCTURE_ROAD) {
+        //                         costMatrix.set(struct.pos.x, struct.pos.y, 1);
+        //                     }
+        //                 });
+        //
+        //                 return costMatrix;
+        //             }
+        //         });
+        //         if (path.path) {
+        //
+        //             path.path.forEach(element => {
+        //                 new RoomVisual(element.roomName).text(String(count), element);
+        //             });
+        //         }
+        //     }
+        // });
+
+        SpawnModule.run(this.spawners[0]);
+        this.spawners.forEach(spawner => {
+            spawner.attemptSpawning();
+        });
 
         BuildModule.run(this);
 

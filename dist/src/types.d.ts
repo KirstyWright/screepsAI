@@ -1,5 +1,6 @@
 // example declaration file - remove these and add your own custom typings
 
+
 // import { Manager } from "manager";
 // import { Task } from "task";
 
@@ -75,4 +76,12 @@ declare namespace NodeJS {
 
 interface String {
     hashCode(): number;
+}
+
+interface Global {
+  // document: Document;
+  // window: Window;
+  managers: Manager[]
+  directives: Directive[]
+  Profiler: any
 }

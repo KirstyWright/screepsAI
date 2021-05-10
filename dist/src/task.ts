@@ -15,6 +15,9 @@ export class Task {
     storageData(): Record<string, any> {
         return {}
     }
+    isValid(): boolean {
+        return false;
+    }
 }
 
 // module.exports = Task;

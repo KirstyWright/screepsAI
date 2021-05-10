@@ -31,19 +31,19 @@ export class SpawnModule {
         }
 
         // DEFENSIVE CODE
-
+        let enemies = 0;
         for (let key in Spawner.manager.memory.rooms) {
             let room = Game.rooms[Spawner.manager.memory.rooms[key]];
             if (room) {
-                let enemies = Spawner.manager.findInRooms(FIND_HOSTILE_CREEPS);
-                if (enemies.length > 0) {
-                    if (roles['milita'] < 2) {
-                        Spawner.queueCreep({
-                            role: 'milita',
-                            category: 'patrol'
-                        });
-                    }
-                }
+                enemies = enemies + Spawner.manager.findInRooms(FIND_HOSTILE_CREEPS).length;
+            }
+        }
+        if (enemies > 0) {
+            if (roles['milita'] < 2) {
+                Spawner.queueCreep({
+                    role: 'milita',
+                    category: 'patrol'
+                });
             }
         }
 
@@ -103,11 +103,11 @@ export class SpawnModule {
                 });
             }
         }
-        if (roles['distributor'] < Math.ceil(Math.max(Spawner.room.find(FIND_MY_STRUCTURES, {
+        if (roles['distributor'] < Math.floor(Spawner.room.find(FIND_MY_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_EXTENSION;
             }
-        }).length / 15)) && roles['hauler'] > 0) {
+        }).length / 15) && roles['hauler'] > 0) {
             Spawner.queueCreep({
                 role: 'distributor'
             });

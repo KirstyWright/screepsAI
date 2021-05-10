@@ -263,12 +263,13 @@ Creep.prototype.moveToPos = function(pos, opts) {
     if (opts == undefined) {
         opts = {};
     }
+    opts.reusePath = 20;
     opts.ignoreCreeps = 1;
     if (opts.costCallback == undefined) {
         opts.costCallback = (roomName: string, costMatrix: { set: (arg0: number, arg1: number, arg2: number) => void; }) => {
             for (let name in Game.creeps) {
                 if (Game.creeps[name].room.name == roomName) {
-                    costMatrix.set(Game.creeps[name].pos.x, Game.creeps[name].pos.y, 20);
+                    costMatrix.set(Game.creeps[name].pos.x, Game.creeps[name].pos.y, 5);
                 }
             }
         }

@@ -4,6 +4,7 @@ export class ScoutTask extends Task {
     roles: string[];
     hash: number;
     target: string;
+    completed: boolean = false;
 
     static buildFromMemory(memoryRecord: Record<string, any>) {
 
@@ -13,16 +14,23 @@ export class ScoutTask extends Task {
             return false;
         }
 
+        let completed = memoryRecord.completed;
+        if (typeof completed === 'undefined') {
+            completed = false;
+        }
+
         return new ScoutTask(
-            target
+            target,
+            completed
         );
     }
 
-    constructor(target: string) {
+    constructor(target: string, completed?: boolean) {
         super()
         this.type = 'scout';
         this.roles = ['scout'];
         this.target = target;
+        this.completed = typeof completed === 'boolean' ? completed : false;
         this.hash = String("scout" + target).hashCode();
     }
 
@@ -30,7 +38,8 @@ export class ScoutTask extends Task {
         return {
             hash: this.hash,
             type: this.type,
-            target: this.target
+            target: this.target,
+            completed: this.completed
         }
     }
     run(creep: Creep) {
@@ -39,11 +48,15 @@ export class ScoutTask extends Task {
             // if (creep.manager.rooms.includes(this.target)) {
             // creep.manager.addRoom(this.target);
             // creep.log("Adding room "+this.target)
-            // }
+            //
+            this.completed = true;
         }
 
     }
     isValid() {
+        if (this.completed) {
+            return false;
+        }
         if (this.target == undefined || this.target == null) {
             return false;
         }

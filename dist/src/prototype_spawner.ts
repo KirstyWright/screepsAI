@@ -34,7 +34,6 @@ Spawn.prototype.attemptSpawning = function() {
     if (this.spawning) {
         return;
     }
-
     if (!this.manager.memory.spawnQueue) {
         return;
     }
@@ -108,6 +107,12 @@ Spawn.prototype.attemptSpawning = function() {
             }
             let body: BodyPartConstant[] = [];
             for (var x = 1; x < loop; x++) {
+                if ((body.length + spawnRoles[creep.role].length) >= 50) {
+                    break;
+                }
+                if (this.manager.memory.spawnQueue.length > 8 && (body.length + spawnRoles[creep.role].length) >= 25) {
+                    break;  // For now limit size of creeps when there is lots in the spawn queue
+                }
                 body = body.concat(spawnRoles[creep.role]);
             }
             response = this.spawnCreep(body, name, {

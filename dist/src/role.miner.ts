@@ -51,7 +51,7 @@ export class RoleMiner {
                     }
                 }
 
-                if (!container) {
+                if (!container && creep.pos.inRangeTo(target.pos.x, target.pos.y, 1)) {
                     // Need a container
                     let containerList = target.room.find<StructureContainer>(FIND_STRUCTURES, {
                         filter: (structure) => {
@@ -71,7 +71,7 @@ export class RoleMiner {
                         }
                     });
                     if (list.length < 1) {
-                        console.log('Creating container');
+                        creep.log('Creating container');
                         target.room.createConstructionSite(creep.pos.x, creep.pos.y, STRUCTURE_CONTAINER);
                     }
                 }

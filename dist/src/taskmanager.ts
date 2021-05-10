@@ -29,9 +29,7 @@ export class TaskManager {
 
         for (let key in targets) {
             let task = new BuildTask(targets[key])
-            if (!this.tasks[task.hash]) {
-                this.tasks[task.hash] = task;
-            }
+            this.addTaskToQueue(task);
         }
 
         let secondTargets = this.manager.findInRooms(FIND_STRUCTURES, {
@@ -50,9 +48,7 @@ export class TaskManager {
 
         for (let key in secondTargets) {
             let task = new RepairTask(secondTargets[key])
-            if (!this.tasks[task.hash]) {
-                this.tasks[task.hash] = task;
-            }
+            this.addTaskToQueue(task);
         }
 
         // let list = this.manager.room.find(FIND_DROPPED_RESOURCES, {
@@ -82,9 +78,7 @@ export class TaskManager {
             let container = Game.getObjectById(element.containerId);
             if (container && container.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && destination) {
                 let task = new CollectTask(container, destination, container.store.getUsedCapacity(RESOURCE_ENERGY));
-                if (!this.tasks[task.hash]) {
-                    this.tasks[task.hash] = task;
-                } else {
+                if (!this.addTaskToQueue(task)) {
                     (<CollectTask>this.tasks[task.hash]).amount = container.store.getUsedCapacity(RESOURCE_ENERGY);
                 }
             }
@@ -103,48 +97,26 @@ export class TaskManager {
             }
 
             let task = new CollectTask(list[key], destination, amount);
-            if (!this.tasks[task.hash]) {
-                this.tasks[task.hash] = task;
-            } else {
+            if (!this.addTaskToQueue(task)) {
                 (<CollectTask>this.tasks[task.hash]).amount = amount;
             }
         }
 
 
-        let roomsToReserve: string[] = [];
-        for (let key in this.manager.memory.sources) {
-            let sourceInformation = this.manager.memory.sources[key];
-            if (!roomsToReserve.includes(sourceInformation.pos.roomName)) {
-                roomsToReserve.push(sourceInformation.pos.roomName);
-                let roomObject = Game.rooms[sourceInformation.pos.roomName];
-                if (roomObject && roomObject.controller && roomObject.controller.my) {
-                    continue;  // I own the room
-                } else {
-                    if (roomObject && !roomObject.controller) {
-                        continue;  // Can't claim room
-                    }
-                    if (!roomObject || roomObject.controller) {  // need to scout
-                        if (roomObject && roomObject.controller) {
-                            if (roomObject.controller.reservation && roomObject.controller.reservation.ticksToEnd > 2500) {
-                                console.log('2500 ticks left so dont bother for room '+roomObject.name);
-                                continue;  // 2500 ticks left on reserving so don't bother
-                            }
-                        }
-                        let task = new ReserveTask(sourceInformation.pos.roomName)
-                        if (!this.tasks[task.hash]) {
-                            this.tasks[task.hash] = task;
-                        }
-                    }
-                }
 
-            }
-        }
 
         // if (!Memory.temp || Memory.temp != 'ab') {
         //     Memory.temp = 'ab';
         //     let task = new ScoutTask('W43N28');
         //     this.tasks[task.hash] = task;
         // }
+    }
+    addTaskToQueue(task: Task): boolean {
+        if (!this.tasks[task.hash]) {
+            this.tasks[task.hash] = task;
+            return true;
+        }
+        return false;
     }
     loadFromMemory() {
         this.tasks = {};
@@ -172,7 +144,7 @@ export class TaskManager {
                     continue;
             }
             if (task) {
-                this.tasks[memoryTask.hash] = task
+                this.addTaskToQueue(task);
             }
         }
     }
