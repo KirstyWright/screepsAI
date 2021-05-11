@@ -5,7 +5,6 @@ export class RoleDistributor {
         } else if (creep.store.getFreeCapacity(RESOURCE_ENERGY) <= 0) {
             creep.memory.emptying = true;
         }
-
         if (!creep.memory.emptying) {
             creep.getEnergy(true, false);
         } else {

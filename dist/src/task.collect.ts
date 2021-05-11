@@ -16,7 +16,6 @@ export class CollectTask extends Task {
         if (!origin || !destination) {
             return false;
         }
-
         return new CollectTask(
             origin,
             destination,
@@ -91,8 +90,9 @@ export class CollectTask extends Task {
         }
     }
     isValid(): boolean {
-        if (this.origin == undefined || this.origin == null) {
+        if ((this.origin == undefined || this.origin == null) && this.amount >= 0) {
             return false;
+            // If cannot find origin and need to transfer more resources
         }
         if (this.destination == undefined || this.destination == null) {
             return false;

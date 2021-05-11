@@ -8,6 +8,7 @@ import { Directive } from "directive";
 // require("prototype_spawner.ts");
 // declare var profiler: any;
 import * as profiler from './screeps-profiler';
+import { Tick } from "Tick";
 
 String.prototype.hashCode = function() {
     var hash = 0;
@@ -21,14 +22,10 @@ String.prototype.hashCode = function() {
     }
     return hash;
 }
-
-// var global: Global = {
+// var Tick. Tick.= {
 //     managers: [],
 //     directives: [],
 // };
-declare var global: Global;
-global.managers = [];
-global.directives = [];
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -71,39 +68,39 @@ export const loop = ErrorMapper.wrapLoop(() => {
         }
 
         for (let key in Memory.manager) {
-            global.managers[key] = new Manager(0);
-            global.managers[key].init();
+            Tick.managers[key] = new Manager(0);
+            Tick.managers[key].init();
         }
 
         let flags: Flag[] = Object.values(Game.flags);
         flags.forEach(flag => {
-            let directive = new Directive(flag, global);
+            let directive = new Directive(flag);
             directive.init();
-            global.directives.push(directive);
+            Tick.directives.push(directive);
         });
 
 
         // RUN
 
-        global.directives.forEach(directive => {
+        Tick.directives.forEach(directive => {
             directive.run();
         });
 
-        for (let key in global.managers) {
-            global.managers[key].run();
+        for (let key in Tick.managers) {
+            Tick.managers[key].run();
         }
 
         for (let name in Game.creeps) {
             if (Game.creeps[name].memory.managerId != undefined) {
-                Game.creeps[name].manager = global.managers[Game.creeps[name].memory.managerId];
+                Game.creeps[name].manager = Tick.managers[Game.creeps[name].memory.managerId];
             }
             Game.creeps[name].run();
         }
 
-        for (let key in global.managers) {
-            global.managers[key].finish();
+        for (let key in Tick.managers) {
+            Tick.managers[key].finish();
         }
-        Stats.exportStats(global.managers);
+        Stats.exportStats(Tick.managers);
 
         if (Game.cpu.bucket >= 10000) {
             Game.cpu.generatePixel();

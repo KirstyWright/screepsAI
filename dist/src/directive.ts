@@ -3,6 +3,7 @@ import { Manager } from 'manager';
 import { DirectiveBase } from 'directive/base';
 import { DirectiveScout } from 'directive/scout';
 import { DirectiveMine } from 'directive/mine';
+import { Tick } from 'Tick';
 
 // Flag control system
 // Each tick:
@@ -19,27 +20,25 @@ export class Directive {
 
     flag: Flag;
     manager: Manager | null;
-    global: Global
     specificDirective: DirectiveBase | null;
 
-    constructor(flag: Flag, global: Global) {
+    constructor(flag: Flag) {
         this.flag = flag;
         this.manager = null;
         this.specificDirective = null;
-        this.global = global;
     }
 
     init() {
         let args: string[] = this.flag.name.split("-");
         let id = Number(args[0]);
-        this.manager = this.global.managers[id];
+        this.manager = Tick.managers[id];
         this.specificDirective = Directive.getSpecificDirectiveByColour(this);
         if (!this.manager) {
             return;
         }
         if (args.length < 2) {
             // has no memory
-            if (typeof id === 'number' && this.global.managers[id] != undefined && this.specificDirective != null) {
+            if (typeof id === 'number' && Tick.managers[id] != undefined && this.specificDirective != null) {
                 let flagName = this.manager.id + '-' + this.flag.pos.roomName + '-' + this.specificDirective.type;
                 let pos = this.flag.pos;
 
@@ -58,6 +57,7 @@ export class Directive {
         if (this.specificDirective) {
             return this.specificDirective.run();
         }
+        return;
     }
 
     static getSpecificDirectiveByColour(directive: Directive): DirectiveBase | null{

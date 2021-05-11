@@ -82,7 +82,7 @@ export class SpawnModule {
             }
         }
 
-        if (roles['hauler'] < (roles['miner'] + 2 )) {
+        if (roles['hauler'] <= (roles['miner'] )) {
             Spawner.queueCreep({
                 role: 'hauler'
             });
@@ -107,7 +107,7 @@ export class SpawnModule {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_EXTENSION;
             }
-        }).length / 15) && roles['hauler'] > 0) {
+        }).length / 30) && roles['hauler'] > 0) {
             Spawner.queueCreep({
                 role: 'distributor'
             });
@@ -115,7 +115,7 @@ export class SpawnModule {
 
         let reserveTasksCount = Spawner.manager.taskManager.getTasksByType('reserve').length;
         if (reserveTasksCount > 0) {
-            if (roles['claimer'] < reserveTasksCount) {
+            if (roles['claimer'] < 1) {
                 Spawner.queueCreep({
                     role: 'claimer'
                 });

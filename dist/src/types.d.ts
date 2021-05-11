@@ -39,6 +39,7 @@ interface StructureSpawn {
 }
 
 interface Memory {
+    routes: any;
     stats: any;
     lastCreepId: number;
     temp: string;
@@ -76,12 +77,4 @@ declare namespace NodeJS {
 
 interface String {
     hashCode(): number;
-}
-
-interface Global {
-  // document: Document;
-  // window: Window;
-  managers: Manager[]
-  directives: Directive[]
-  Profiler: any
 }
