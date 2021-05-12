@@ -34,13 +34,7 @@ var roleEmoji: Record<string, string> = {
     'distributor': '🧱'
 };
 
-Creep.prototype.run = function() {
-
-    if (this.spawning) {
-        return;
-    }
-
-    // if idle movement
+Creep.prototype.genericRun = function(): boolean {
     if (!this.memory.lastPos) {
         this.memory.lastPos = null;
     }
@@ -135,15 +129,24 @@ Creep.prototype.run = function() {
             }
         }
     }
+    return moved;
 
+}
 
+Creep.prototype.run = function() {
 
+    if (this.spawning) {
+        return;
+    }
+
+    let moved = this.genericRun();
 
     if (!moved) {
         roles[this.memory.role].run(this);
     }
+
     if (!this.fatigue) {
-        this.memory.lastPos = currentPosString;
+        this.memory.lastPos = Helper.savePos(this.pos);;
     }
 };
 
@@ -162,28 +165,35 @@ Creep.prototype.getEnergy = function(useContainer?: boolean, useSource?: boolean
         room = Game.rooms[roomName];
     }
     if (useContainer) {
-        let obj = {
+        let obj;
+
+        obj = {
             filter: (i: StructureContainer | StructureStorage) => {
                 return (
                     (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store.energy > (['distributor'].includes(this.memory.role) ? 0 : 500)
                 );
             }
         };
+
         if (room) {
-            container = room.find(FIND_STRUCTURES, obj)[0];
+            if (room.storage) {
+                container = room.storage;
+            } else {
+                container = room.find(FIND_STRUCTURES, obj)[0];
+            }
         } else {
-            container = this.pos.findClosestByRange(FIND_STRUCTURES, obj);
+            if (this.room.storage) {
+                container = this.room.storage;
+            } else {
+                container = this.pos.findClosestByRange(FIND_STRUCTURES, obj);
+            }
         }
 
         if (container) {
             // there is a container
             this.memory.sourceId = null;
             if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.moveToPos(container, {
-                    visualizePathStyle: {
-                        stroke: '#ffaa00'
-                    }
-                });
+                this.travelTo(container);
             }
         } else {
             if (roomName === undefined) {
@@ -206,11 +216,7 @@ Creep.prototype.getEnergy = function(useContainer?: boolean, useSource?: boolean
                 // there is a container and if no storage in the room
                 this.memory.sourceId = null;
                 if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    this.moveToPos(container, {
-                        visualizePathStyle: {
-                            stroke: '#ffaa00'
-                        }
-                    });
+                    this.travelTo(container);
                 }
             }
 
@@ -248,11 +254,7 @@ Creep.prototype.getEnergy = function(useContainer?: boolean, useSource?: boolean
             let target: Source | null = Game.getObjectById(this.memory.sourceId);
             if (target) {
                 if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-                    this.moveToPos(target, {
-                        visualizePathStyle: {
-                            stroke: '#ffaa00'
-                        }
-                    });
+                    this.travelTo(target);
                 }
             }
         }
@@ -275,9 +277,6 @@ Creep.prototype.moveToPos = function(pos, opts) {
         }
     }
 
-    opts.visualizePathStyle = {
-        stroke: '#ffaa00'
-    };
     return this.moveTo(pos, opts);
 };
 

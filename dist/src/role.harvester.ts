@@ -22,29 +22,17 @@ export class RoleHarvester {
             });
             if (targets.length > 0) {
                 if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveToPos(targets[0], {
-                        visualizePathStyle: {
-                            stroke: '#ffffff'
-                        }
-                    });
+                    creep.travelTo(targets[0]);
                 }
             } else if (containers.length > 0) {
                 if (creep.transfer(containers[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveToPos(containers[0], {
-                        visualizePathStyle: {
-                            stroke: '#ffffff'
-                        }
-                    });
+                    creep.travelTo(containers[0]);
                 }
             } else {
                 let targets: ConstructionSite[] = creep.room.find(FIND_CONSTRUCTION_SITES);
                 if (targets.length) {
                     if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveToPos(targets[0], {
-                            visualizePathStyle: {
-                                stroke: '#ffffff'
-                            }
-                        });
+                        creep.travelTo(targets[0]);
                     }
                 }
             }

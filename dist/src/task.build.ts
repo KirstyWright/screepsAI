@@ -47,7 +47,7 @@ export class BuildTask extends Task {
             let target = this.target;
 
             if (creep.build(target) == ERR_NOT_IN_RANGE) {
-                creep.moveToPos(target);
+                creep.travelTo(target);
             }
         } else {
             creep.getEnergy(true, false);

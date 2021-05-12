@@ -43,7 +43,7 @@ export class RepairTask extends Task {
             let target = this.target;
 
             if (creep.repair(target) == ERR_NOT_IN_RANGE) {
-                creep.moveToPos(target);
+                creep.travelTo(target);
             }
         } else {
             creep.getEnergy(true, false);

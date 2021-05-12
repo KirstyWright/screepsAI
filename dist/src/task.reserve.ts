@@ -34,13 +34,13 @@ export class ReserveTask extends Task {
     }
     run(creep: Creep) {
         if (creep.pos.roomName != this.target) {
-            creep.moveToPos(new RoomPosition(25, 25, this.target));
+            creep.travelTo(new RoomPosition(25, 25, this.target));
         } else {
             let room = Game.rooms[this.target];
             if (room && room.controller) {
                 let result = creep.reserveController(room.controller);
                 if (result == ERR_NOT_IN_RANGE) {
-                    creep.moveToPos(room.controller);
+                    creep.travelTo(room.controller);
                 }
             } else {
                 console.log('OH NO !');

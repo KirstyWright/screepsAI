@@ -1,11 +1,12 @@
 // example declaration file - remove these and add your own custom typings
 
-
 // import { Manager } from "manager";
 // import { Task } from "task";
 
 // memory extension samples
 interface CreepMemory {
+    _travel: any;
+    _trav: any;
     targetRoom?: string;
     category?: string;
     targetId?: string|null;
@@ -20,6 +21,7 @@ interface CreepMemory {
 }
 
 interface Creep {
+    genericRun: () => boolean;
     idleMovement: boolean;
     findInManagerRooms: (type: any, opts: any) => any[];
     moveToPos: (pos: any, opts?: any) => 0 | -1 | -4 | -11 | -12 | -2 | -7;
@@ -46,6 +48,11 @@ interface Memory {
     uuid: number;
     log: any;
     manager: Array<ManagerMemory>;
+    empire?: any
+}
+
+interface RoomMemory {
+    avoid?: number
 }
 
 interface ManagerMemory {

@@ -97,7 +97,7 @@ export class SpawnModule {
             });
         }
         if (Spawner.room && Spawner.room.storage) {
-            if (roles['upgrader'] < Math.min(Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 10000)), 4)) {
+            if (roles['upgrader'] < Math.min(Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 10000)), 2)) {
                 Spawner.queueCreep({
                     role: 'upgrader'
                 });

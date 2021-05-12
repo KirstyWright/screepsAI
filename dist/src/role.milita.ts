@@ -11,10 +11,7 @@ export class RoleMilita {
                 }).length < 4) {
                     return;
                 } else if (creep.room.name != creep.memory.targetRoom) {
-                    creep.moveToPos(new RoomPosition(25, 25, creep.memory.targetRoom), {
-                        visualizePathStyle: {
-                            stroke: '#ff5733'
-                        },
+                    creep.travelTo(new RoomPosition(25, 25, creep.memory.targetRoom), {
                         ignoreCreeps: true,
                         ignoreRoads: true
                     });
@@ -83,11 +80,8 @@ export class RoleMilita {
                     creep.log('Found opportunity killing');
                     creep.attack(anotherTarget);
                 }
-                creep.moveToPos(target, {
+                creep.travelTo(target, {
                     ignoreRoads: true,
-                    visualizePathStyle: {
-                        stroke: '#ff5733'
-                    }
                 });
             } else {
                 creep.log(String(attackMove));
@@ -108,7 +102,7 @@ export class RoleMilita {
                 } else {
                     let spawns = creep.room.find(FIND_MY_SPAWNS);
                     if (spawns.length > 0) {
-                        creep.moveToPos(spawns[0].pos, {
+                        creep.travelTo(spawns[0].pos, {
                             ignoreRoads: true,
                             range: 5
                         });

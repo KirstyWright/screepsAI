@@ -43,7 +43,7 @@ export class ScoutTask extends Task {
         }
     }
     run(creep: Creep) {
-        creep.moveToPos(new RoomPosition(25, 25, this.target));
+        creep.travelTo(new RoomPosition(25, 25, this.target));
         if (creep.pos.roomName === this.target) {
             // if (creep.manager.rooms.includes(this.target)) {
             // creep.manager.addRoom(this.target);

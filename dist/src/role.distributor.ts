@@ -10,7 +10,7 @@ export class RoleDistributor {
         } else {
             let targetRoom = creep.manager.room;
             if (creep.room.name != targetRoom.name) {
-                creep.moveToPos(new RoomPosition(25, 25, targetRoom.name));
+                creep.travelTo(new RoomPosition(25, 25, targetRoom.name));
                 return;
             }
             var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -21,11 +21,7 @@ export class RoleDistributor {
             });
             if (target) {
                 if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveToPos(target, {
-                        visualizePathStyle: {
-                            stroke: '#ffffff'
-                        }
-                    });
+                    creep.travelTo(target);
                 }
             } else {
                 target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -36,11 +32,7 @@ export class RoleDistributor {
                 });
                 if (target) {
                     if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveToPos(target, {
-                            visualizePathStyle: {
-                                stroke: '#ffffff'
-                            }
-                        });
+                        creep.travelTo(target);
                     }
                 }
             }

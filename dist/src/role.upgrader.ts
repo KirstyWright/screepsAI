@@ -11,11 +11,7 @@ export class RoleUpgrader {
                 return;
             }
             if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveToPos(creep.room.controller, {
-                    visualizePathStyle: {
-                        stroke: '#ffffff'
-                    }
-                });
+                creep.travelTo(creep.room.controller);
             }
         } else {
             creep.getEnergy(true, false);

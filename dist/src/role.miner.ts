@@ -32,11 +32,11 @@ export class RoleMiner {
                 if (container && container.pos) {
                     if (creep.pos != container.pos) {
                         if (container.pos.lookFor(LOOK_CREEPS).length == 0) {
-                            creep.moveToPos(container.pos, {
+                            creep.travelTo(container.pos, {
                                 range: 0
                             });
                         } else {
-                            creep.moveToPos(target.pos, {
+                            creep.travelTo(target.pos, {
                                 range: 1
                             });
                         }
@@ -45,7 +45,7 @@ export class RoleMiner {
                     creep.harvest(target);
                 } else {
                     if (creep.harvest(target) == ERR_NOT_IN_RANGE) {
-                        creep.moveToPos(target.pos, {
+                        creep.travelTo(target.pos, {
                             range: 1
                         });
                     }
@@ -77,10 +77,7 @@ export class RoleMiner {
                 }
 
             } else {
-                creep.moveToPos(new RoomPosition(cachedSource.pos.x, cachedSource.pos.y, cachedSource.pos.roomName), {
-                    visualizePathStyle: {
-                        stroke: '#ffaa00'
-                    }
+                creep.travelTo(new RoomPosition(cachedSource.pos.x, cachedSource.pos.y, cachedSource.pos.roomName), {
                 });
             }
         }

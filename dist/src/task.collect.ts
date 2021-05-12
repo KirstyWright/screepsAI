@@ -55,11 +55,7 @@ export class CollectTask extends Task {
         // }
         if (!creep.memory.emptying) {
             if (this.origin.pos.roomName !== creep.room.name) {
-                creep.moveToPos(this.origin.pos, {
-                    visualizePathStyle: {
-                        stroke: '#00FF00'
-                    }
-                });
+                creep.travelTo(this.origin.pos);
             } else {
 
                 let pickup;
@@ -71,21 +67,13 @@ export class CollectTask extends Task {
                     return; // Should never get here as should be picked up by isValid
                 }
                 if (pickup == ERR_NOT_IN_RANGE) {
-                    creep.moveToPos(this.origin, {
-                        visualizePathStyle: {
-                            stroke: '#00FF00'
-                        }
-                    });
+                    creep.travelTo(this.origin);
                 }
 
             }
         } else {
             if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveToPos(this.destination, {
-                    visualizePathStyle: {
-                        stroke: '#ffffff'
-                    }
-                });
+                creep.travelTo(this.destination);
             }
         }
     }
