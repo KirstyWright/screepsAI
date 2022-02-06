@@ -110,12 +110,11 @@ export class SpawnModule {
                 });
             }
         }
-
-        if (roles['distributor'] < Math.floor(Spawner.room.find(FIND_MY_STRUCTURES, {
+        if (roles['distributor'] < Math.max(1, Math.floor(Spawner.room.find(FIND_MY_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_EXTENSION;
             }
-        }).length / 30) && roles['hauler'] > 0) {
+        }).length / 30)) && roles['hauler'] > 0) {
             Spawner.queueCreep({
                 role: 'distributor'
             });
