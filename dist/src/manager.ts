@@ -42,10 +42,9 @@ export class Manager {
 
         if (!this.memory.rooms || this.memory.rooms.length == 0) {
             this.memory.rooms = [];
-            this.memory.rooms.push(this.memory.room);
-
             let exits = Game.map.describeExits(this.room.name);
             this.memory.rooms = Object.values(exits);
+            this.memory.rooms.push(this.memory.room);
         }
 
         if (!this.memory.sources || this.memory.sources.length == 0) {
@@ -76,7 +75,8 @@ export class Manager {
         let room = Game.rooms[roomName];
         if (room) {
             if (!this.memory.rooms.includes(roomName)) {
-                this.memory.rooms.push(roomName);
+                // this.memory.rooms.push(roomName);
+                console.log('HERE and should not be')
             }
 
             let sourcesInRoom = room.find(FIND_SOURCES);

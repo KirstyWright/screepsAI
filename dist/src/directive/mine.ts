@@ -11,6 +11,9 @@ export class DirectiveMine extends DirectiveBase {
     }
 
     run() {
+        if (this.manager) {
+            return;
+        }
         if (!this.manager) {
             return;
         }
@@ -38,8 +41,8 @@ export class DirectiveMine extends DirectiveBase {
             }
         }
         if (reserveFlag) {
-            let task = new ReserveTask(roomName)
-            this.manager.taskManager.addTaskToQueue(task);
+            // let task = new ReserveTask(roomName)
+            // this.manager.taskManager.addTaskToQueue(task);
         }
 
         if (Game.time % 10 == 0) {

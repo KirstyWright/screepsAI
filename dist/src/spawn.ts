@@ -82,7 +82,7 @@ export class SpawnModule {
             }
         }
 
-        if (roles['hauler'] <= (roles['miner'] )) {
+        if (roles['hauler'] < (roles['miner'] )) {
             Spawner.queueCreep({
                 role: 'hauler'
             });
@@ -96,13 +96,21 @@ export class SpawnModule {
                 role: 'builder'
             });
         }
+        // if (Spawner.room && Spawner.room.storage) {
         if (Spawner.room && Spawner.room.storage) {
             if (roles['upgrader'] < Math.min(Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 10000)), 2)) {
                 Spawner.queueCreep({
                     role: 'upgrader'
                 });
             }
+        } else if (Spawner.room) {
+            if (roles['upgrader'] < 2 && Spawner.room.energyAvailable > 250) {
+                Spawner.queueCreep({
+                    role: 'upgrader'
+                });
+            }
         }
+
         if (roles['distributor'] < Math.floor(Spawner.room.find(FIND_MY_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_EXTENSION;

@@ -91,12 +91,12 @@ export class BuildModule {
         let structures = manager.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_CONTROLLER
-                || structure.structureType == STRUCTURE_TOWER);
+                    || structure.structureType == STRUCTURE_TOWER);
             }
         });
         for (let key in structures) {
             let structure = structures[key];
-            let path = PathFinder.search(spawn.pos, {pos: structure.pos, range: 1}, this.pathfinderCostIgnoreRoads);
+            let path = PathFinder.search(spawn.pos, { pos: structure.pos, range: 1 }, this.pathfinderCostIgnoreRoads);
             for (let pathKey in path.path) {
                 if (roadsToBuild <= 0) {
                     break;
@@ -110,7 +110,7 @@ export class BuildModule {
         }
 
     }
-    static buildExtensions (manager: Manager) {
+    static buildExtensions(manager: Manager) {
         // extensions build
         let search = manager.room.find(FIND_MY_STRUCTURES, {
             filter: { structureType: STRUCTURE_SPAWN }
@@ -121,8 +121,7 @@ export class BuildModule {
                 return structure.structureType == STRUCTURE_EXTENSION;
             }
         });
-
-        let extensionsMap: Record<number, number> ={
+        let extensionsMap: Record<number, number> = {
             0: 0,
             1: 0,
             2: 5,
@@ -137,7 +136,6 @@ export class BuildModule {
             return;
         }
         let numberOfExtensionsAvailable = extensionsMap[manager.room.controller.level];
-
         if (currentExtensions.length >= numberOfExtensionsAvailable || this.getCurrentSites(manager).length > 2) {
             return
         }
@@ -152,7 +150,8 @@ export class BuildModule {
                     let results = manager.room.lookAt(x, y);
                     let flag = false;
                     for (let key in results) {
-                        if (results[key].type == 'structure') {
+                        // TODO: reformat this to ensure we use a single get all structures look as using lookAt alot is expensive
+                        if (results[key].type == 'structure' || results[key].type == 'constructionSite') {
                             flag = true;
                             break;
                         }
@@ -166,11 +165,9 @@ export class BuildModule {
                 }
             }
         }
-
-        let sorted = options.sort( (a, b) => {
+        let sorted = options.sort((a, b) => {
             return (spawn.pos.getRangeTo(a.x, a.y) - spawn.pos.getRangeTo(b.x, b.y));
-        } );
-
+        });
         if (sorted[0]) {
             spawn.room.createConstructionSite(sorted[0].x, sorted[0].y, STRUCTURE_EXTENSION);
         }

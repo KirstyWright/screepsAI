@@ -26,7 +26,6 @@ export class TaskManager {
     }
     getNewTasks() {
         let targets = this.manager.findInRooms(FIND_MY_CONSTRUCTION_SITES);
-
         for (let key in targets) {
             let task = new BuildTask(targets[key])
             this.addTaskToQueue(task);
@@ -63,12 +62,20 @@ export class TaskManager {
         list = list.concat(this.manager.findInRooms(FIND_TOMBSTONES));
 
 
-        let destination: StructureStorage | null = null;
+        let destination: StructureStorage | StructureExtension | StructureSpawn | null = null;
         if (this.manager.room.storage) {
             destination = this.manager.room.storage;
         } else {
-            console.log('No Storage!!!');
-            return;
+            let list  = this.manager.room.find(FIND_MY_STRUCTURES, {
+                filter: (structure: StructureExtension | StructureSpawn) => {
+                    return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
+                        structure.energy < structure.energyCapacity;
+                }
+            });
+            destination = <StructureExtension | StructureSpawn>list[0];
+            if (!destination) {
+                return; // temp
+            }
         }
 
         this.manager.memory.sources.forEach((element: ManagerMemorySources) => {
