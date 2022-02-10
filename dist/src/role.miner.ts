@@ -35,13 +35,13 @@ export class RoleMiner {
                             creep.travelTo(container.pos, {
                                 range: 0
                             });
+                            return;
                         } else {
                             creep.travelTo(target.pos, {
                                 range: 1
                             });
                         }
                     }
-
                     creep.harvest(target);
                 } else {
                     if (creep.harvest(target) == ERR_NOT_IN_RANGE) {

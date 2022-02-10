@@ -10,9 +10,19 @@ export class RoleUpgrader {
             if (!creep.room.controller) {
                 return;
             }
+
+            if (creep.room.controller && creep.room.controller && creep.room.controller.sign && creep.room.controller.sign.username != "PrincessVamps") {
+                if (creep.signController(creep.room.controller, "Knock knock ...") == ERR_NOT_IN_RANGE) {
+                    creep.travelTo(creep.room.controller);
+                }
+                return;
+            }
+
+
             if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                 creep.travelTo(creep.room.controller);
             }
+
         } else {
             creep.getEnergy(true, false);
         }

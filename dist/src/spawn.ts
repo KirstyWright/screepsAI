@@ -90,26 +90,27 @@ export class SpawnModule {
         if (roles['builder'] < Math.max(1, (
             Spawner.manager.taskManager.getTasksByType('build').length
             + Spawner.manager.taskManager.getTasksByType('repair').length
-        ) / 30)) {
+        ) / 10)) {
         // if (roles['builder'] < Math.min(1, Spawner.room.find(FIND_CONSTRUCTION_SITES).length / 10)) {
             Spawner.queueCreep({
                 role: 'builder'
             });
         }
-        // if (Spawner.room && Spawner.room.storage) {
+        // If I have storage then use the proper calculations
         if (Spawner.room && Spawner.room.storage) {
-            if (roles['upgrader'] < Math.min(Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 10000)), 2)) {
+            if (roles['upgrader'] < Math.min(10, Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 10000)))) {
                 Spawner.queueCreep({
                     role: 'upgrader'
                 });
             }
         } else if (Spawner.room) {
-            if (roles['upgrader'] < 2 && Spawner.room.energyAvailable > 250) {
+            if (roles['upgrader'] < 4 && Spawner.room.energyAvailable > 250) {
                 Spawner.queueCreep({
                     role: 'upgrader'
                 });
             }
         }
+
         if (roles['distributor'] < Math.max(1, Math.floor(Spawner.room.find(FIND_MY_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_EXTENSION;

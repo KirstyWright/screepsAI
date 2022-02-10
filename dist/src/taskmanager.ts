@@ -20,9 +20,9 @@ export class TaskManager {
         this.saveToMemory();
     }
     getTasksByType(type: string): Task[] {
-        return Object.values(this.tasks).filter( (task) => {
+        return Object.values(this.tasks).filter((task) => {
             return task.type == type;
-        } );
+        });
     }
     getNewTasks() {
         let targets = this.manager.findInRooms(FIND_MY_CONSTRUCTION_SITES);
@@ -51,7 +51,7 @@ export class TaskManager {
         }
 
         // let list = this.manager.room.find(FIND_DROPPED_RESOURCES, {
-        let list: (Resource|Ruin|Tombstone)[] = [];
+        let list: (Resource | Ruin | Tombstone)[] = [];
         list = this.manager.findInRooms(FIND_DROPPED_RESOURCES, {
             filter: (d) => {
                 return d.resourceType == RESOURCE_ENERGY && d.amount > 50;
@@ -62,36 +62,78 @@ export class TaskManager {
         list = list.concat(this.manager.findInRooms(FIND_TOMBSTONES));
 
 
-        let destination: StructureStorage | StructureExtension | StructureSpawn | null = null;
-        if (this.manager.room.storage) {
-            destination = this.manager.room.storage;
-        } else {
-            let list  = this.manager.room.find(FIND_MY_STRUCTURES, {
-                filter: (structure: StructureExtension | StructureSpawn) => {
-                    return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
-                        structure.energy < structure.energyCapacity;
-                }
-            });
-            destination = <StructureExtension | StructureSpawn>list[0];
-            if (!destination) {
-                return; // temp
-            }
-        }
-
+        // Get collection source
+        let miningContainers: Array<Id<StructureContainer>> = [];
         this.manager.memory.sources.forEach((element: ManagerMemorySources) => {
             if (!element.containerId) {
                 return;
             }
-            let container = Game.getObjectById(element.containerId);
+            miningContainers.push(element.containerId);
+        });
+
+        // Get collection destination
+        let destination: StructureContainer | StructureStorage | StructureExtension | StructureSpawn | null = null;
+        if (this.manager.room.storage) {
+            destination = this.manager.room.storage;
+        } else {
+            let list = this.manager.room.find(FIND_MY_STRUCTURES, {
+                filter: (structure: StructureExtension | StructureSpawn) => {
+                    return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
+                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                }
+            });
+
+            if (list.length == 0) {
+                let newlist = this.manager.room.find(FIND_STRUCTURES, {
+                    filter: (structure: StructureContainer) => {
+                        if (structure.structureType != STRUCTURE_CONTAINER) {
+                            return false;
+                        }
+                        return (!miningContainers.includes(structure.id) && structure.structureType == STRUCTURE_CONTAINER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+                    }
+                });
+                destination = <StructureContainer>newlist[0];
+            }
+
+            if (!destination) {
+                destination = <StructureExtension | StructureContainer | StructureSpawn>list[0];
+            }
+        }
+        if (!destination) {
+            return; // Temp but not so temp it seems -_-
+        }
+
+        for (let i = 0; i < miningContainers.length; i++) {
+            let container = Game.getObjectById(miningContainers[i]);
             if (container && container.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && destination) {
                 let task = new CollectTask(container, destination, container.store.getUsedCapacity(RESOURCE_ENERGY));
                 if (!this.addTaskToQueue(task)) {
                     (<CollectTask>this.tasks[task.hash]).amount = container.store.getUsedCapacity(RESOURCE_ENERGY);
                 }
             }
-        });
+        };
 
 
+        // Fill containers
+        if (this.manager.room.storage) {
+            let containerList = <StructureContainer[]>this.manager.room.find(FIND_STRUCTURES, {
+                filter: (structure: StructureContainer) => {
+                    if (structure.structureType != STRUCTURE_CONTAINER) {
+                        return false;
+                    }
+                    return (!miningContainers.includes(structure.id) && structure.structureType == STRUCTURE_CONTAINER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+                }
+            });
+
+            for (let i = 0; i < containerList.length; i++) {
+                let container = containerList[i];
+                let task = new CollectTask(this.manager.room.storage, container, container.store.getFreeCapacity(RESOURCE_ENERGY));
+                if (!this.addTaskToQueue(task)) {
+                    (<CollectTask>this.tasks[task.hash]).amount = container.store.getFreeCapacity(RESOURCE_ENERGY);
+                }
+            }
+
+        }
 
         for (let key in list) {
             let item = list[key];
@@ -164,7 +206,7 @@ export class TaskManager {
         }
         this.manager.memory.tasks = list;
     }
-    getNewTask(creep: Creep): null|Task {
+    getNewTask(creep: Creep): null | Task {
         for (let hash in this.tasks) {
             let task = this.tasks[hash];
             if (task.roles.includes(creep.memory.role)) {
@@ -186,5 +228,5 @@ export class TaskManager {
     log(content: string) {
         console.log(content);
     }
-    init() {}
+    init() { }
 }

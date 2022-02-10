@@ -75,8 +75,7 @@ export class Manager {
         let room = Game.rooms[roomName];
         if (room) {
             if (!this.memory.rooms.includes(roomName)) {
-                // this.memory.rooms.push(roomName);
-                console.log('HERE and should not be')
+                this.memory.rooms.push(roomName);
             }
 
             let sourcesInRoom = room.find(FIND_SOURCES);

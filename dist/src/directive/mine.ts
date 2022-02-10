@@ -11,9 +11,6 @@ export class DirectiveMine extends DirectiveBase {
     }
 
     run() {
-        if (this.manager) {
-            return;
-        }
         if (!this.manager) {
             return;
         }

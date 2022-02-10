@@ -13,14 +13,16 @@ export class CollectTask extends Task {
         let origin = <Structure | Tombstone | Resource | Ruin | null>Game.getObjectById(memoryRecord.origin);
         let destination = <Structure | null>Game.getObjectById(memoryRecord.destination);
 
-        if (!origin || !destination) {
+        if (!origin || !origin.id || !destination) {
             return false;
         }
-        return new CollectTask(
+
+        let task = new CollectTask(
             origin,
             destination,
             memoryRecord.amount
         );
+        return task;
     }
 
 
@@ -33,6 +35,14 @@ export class CollectTask extends Task {
         this.origin = origin; // StructureContainer, StructureStorage, Resource
         this.destination = destination; // StructureContainer, StructureStorage
         this.amount = amount;
+
+
+        if (this.origin && this.origin.pos) {
+            new RoomVisual(this.origin.pos.roomName).text(this.hash + ' Origin', this.origin.pos.x, this.origin.pos.y, { align: 'left', color: 'white', font: 0.2 });
+        }
+        if (this.destination && this.destination.pos) {
+            new RoomVisual(this.destination.pos.roomName).text(this.hash + ' Destination', this.destination.pos.x, this.destination.pos.y, { align: 'left', color: 'white', font: 0.2 });
+        }
 
     }
     storageData(): Record<string, any> {
@@ -61,7 +71,7 @@ export class CollectTask extends Task {
                 let pickup;
                 if ("store" in this.origin) {
                     pickup = creep.withdraw(this.origin, RESOURCE_ENERGY);
-                } else if ('amount' in this.origin){
+                } else if ('amount' in this.origin) {
                     pickup = creep.pickup(this.origin);
                 } else {
                     return; // Should never get here as should be picked up by isValid
@@ -91,13 +101,23 @@ export class CollectTask extends Task {
         if (!("store" in this.origin) && "structureType" in this.origin) {
             return false;  // If it has no storage but is a structure we cannot withdraw from it
         }
+
         if (
-            (<StructureContainer|Ruin|Tombstone>this.origin).store !== undefined
-            && (<StructureContainer|Ruin|Tombstone>this.origin).store.getUsedCapacity(RESOURCE_ENERGY) <= 0
+            (<StructureContainer | Ruin | Tombstone>this.origin).store !== undefined
+            && (<StructureContainer | Ruin | Tombstone>this.origin).store.getUsedCapacity(RESOURCE_ENERGY) <= 0
         ) {
             // If structure has a store (ie is a structure) && has no energy in it
             return false;
         }
+
+        if (
+            (<StructureContainer | Ruin | Tombstone>this.destination).store !== undefined
+            && (<StructureContainer | Ruin | Tombstone>this.destination).store.getFreeCapacity(RESOURCE_ENERGY) == 0
+        ) {
+            // If structure has a store (ie is a structure) && is full
+            return false;
+        }
+
         return true;
     }
 }
