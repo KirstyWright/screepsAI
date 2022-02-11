@@ -1,6 +1,7 @@
 import { DirectiveBase } from "./base";
 import { Directive } from "directive";
 import { ReserveTask } from "task.reserve";
+import { ScoutTask } from "task.scout";
 
 
 export class DirectiveMine extends DirectiveBase {
@@ -42,6 +43,10 @@ export class DirectiveMine extends DirectiveBase {
 
         if (Game.time % 10 == 0) {
             this.manager.addRoom(roomName);
+            if (!roomObject) {
+                let task = new ScoutTask(roomName);
+                this.manager.taskManager.addTaskToQueue(task);
+            }
         }
 
     }
