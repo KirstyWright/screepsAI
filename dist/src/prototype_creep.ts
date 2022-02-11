@@ -143,7 +143,7 @@ Creep.prototype.log = function(content) {
 };
 
 Creep.prototype.getManagerMemory = function() {
-    return Memory.manager[0];
+    return Memory.manager[this.memory.managerId];
 };
 
 Creep.prototype.getEnergy = function(useContainer?: boolean, useSource?: boolean, roomName?: string) {

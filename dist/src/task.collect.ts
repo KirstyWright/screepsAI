@@ -37,12 +37,12 @@ export class CollectTask extends Task {
         this.amount = amount;
 
 
-        if (this.origin && this.origin.pos) {
-            new RoomVisual(this.origin.pos.roomName).text(this.hash + ' Origin', this.origin.pos.x, this.origin.pos.y, { align: 'left', color: 'white', font: 0.2 });
-        }
-        if (this.destination && this.destination.pos) {
-            new RoomVisual(this.destination.pos.roomName).text(this.hash + ' Destination', this.destination.pos.x, this.destination.pos.y, { align: 'left', color: 'white', font: 0.2 });
-        }
+        // if (this.origin && this.origin.pos) {
+        //     new RoomVisual(this.origin.pos.roomName).text(this.hash + ' Origin', this.origin.pos.x, this.origin.pos.y, { align: 'left', color: 'white', font: 0.2 });
+        // }
+        // if (this.destination && this.destination.pos) {
+        //     new RoomVisual(this.destination.pos.roomName).text(this.hash + ' Destination', this.destination.pos.x, this.destination.pos.y, { align: 'left', color: 'white', font: 0.2 });
+        // }
 
     }
     storageData(): Record<string, any> {
@@ -80,10 +80,17 @@ export class CollectTask extends Task {
                     creep.travelTo(this.origin);
                 }
 
+                if (pickup === OK) {
+                    creep.log("I am taking "+this.amount+" ("+creep.store.getCapacity()+") from "+this.origin.pos+" to take to "+this.destination.pos);
+                }
+
             }
         } else {
-            if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            let result = creep.transfer(this.destination, RESOURCE_ENERGY);
+            if (result == ERR_NOT_IN_RANGE) {
                 creep.travelTo(this.destination);
+            } else if (result == OK) {
+                creep.log("I am giving "+this.amount+" ("+creep.store.getCapacity()+") to "+this.destination.pos+" from "+this.origin.pos);
             }
         }
     }
