@@ -98,7 +98,7 @@ export class SpawnModule {
         }
         // If I have storage then use the proper calculations
         if (Spawner.room && Spawner.room.storage) {
-            if (roles['upgrader'] < Math.min(10, Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 10000)))) {
+            if (roles['upgrader'] < Math.min(5, Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 20000)))) {
                 Spawner.queueCreep({
                     role: 'upgrader'
                 });

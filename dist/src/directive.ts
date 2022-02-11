@@ -41,7 +41,6 @@ export class Directive {
             if (typeof id === 'number' && Tick.managers[id] != undefined && this.specificDirective != null) {
                 let flagName = this.manager.id + '-' + this.flag.pos.roomName + '-' + this.specificDirective.type;
                 let pos = this.flag.pos;
-
                 if (Game.rooms[pos.roomName]) {
                     let c1 = this.flag.color;
                     let c2 = this.flag.secondaryColor

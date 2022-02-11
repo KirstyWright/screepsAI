@@ -17,7 +17,7 @@ export class DirectiveScout extends DirectiveBase {
             let task = new ScoutTask(this.flag.pos.roomName);
             this.manager.taskManager.addTaskToQueue(task);
         }
-        console.log(this.flag.remove());
+        this.flag.remove();
     }
 
 }

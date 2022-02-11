@@ -95,66 +95,25 @@ export class Manager {
         }
     }
     run() {
-        // let count = 0;
-        // this.memory.sources.forEach((element: ManagerMemorySources) => {
-        //     count = count + 1;
-        //     if (!element.containerId) {
-        //         return;
-        //     }
-        //     // console.log(element.sourceId);
-        //     let source = Game.getObjectById(element.containerId);
-        //     let storage = this.room.storage ? this.room.storage.pos : this.spawners[0].pos
-        //     if (source && storage) {
-        //         let path = PathFinder.search(storage, source.pos, {
-        //             plainCost: 2,
-        //             swampCost: 3,
-        //             roomCallback: (roomName: string) => {
-        //                 let costMatrix = new PathFinder.CostMatrix;
-        //                 let room = Game.rooms[roomName];
-        //                 if (!room) {
-        //                     return false;
-        //                 }
-        //
-        //                 room.find(FIND_STRUCTURES).forEach(function(struct) {
-        //                     if (struct.structureType !== STRUCTURE_CONTAINER  && struct.structureType !== STRUCTURE_ROAD &&
-        //                         (struct.structureType !== STRUCTURE_RAMPART ||
-        //                             !struct.my)) {
-        //                         // Can't walk through non-walkable buildings
-        //                         costMatrix.set(struct.pos.x, struct.pos.y, 255);
-        //                     } else if (struct.structureType === STRUCTURE_ROAD) {
-        //                         costMatrix.set(struct.pos.x, struct.pos.y, 1);
-        //                     }
-        //                 });
-        //
-        //                 return costMatrix;
-        //             }
-        //         });
-        //         if (path.path) {
-        //
-        //             path.path.forEach(element => {
-        //                 new RoomVisual(element.roomName).text(String(count), element);
-        //             });
-        //         }
-        //     }
-        // });
-
         SpawnModule.run(this.spawners[0]);
         this.spawners.forEach(spawner => {
             spawner.attemptSpawning();
         });
 
         BuildModule.run(this);
-
         let towers = this.room.find<StructureTower>(
             FIND_MY_STRUCTURES, {
                 filter: {
                     structureType: STRUCTURE_TOWER
                 }
-            });
+            }
+        );
+
         towers.forEach((tower) => {
             let result = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
             if (result) {
                 tower.attack(result);
+                return;
             }
             result = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
                 filter: (object) => {
@@ -163,6 +122,7 @@ export class Manager {
             });
             if (result) {
                 tower.heal(result);
+                return;
             }
 
             if (tower.store.getUsedCapacity(RESOURCE_ENERGY) < 500) {
@@ -185,12 +145,6 @@ export class Manager {
                 tower.repair(targets[0]);
             }
         });
-
-        // if (!Memory.temp || Memory.temp != 'v') {
-        //     Memory.temp = 'v';
-        //     this.addRoom("W43N28");
-        // }
-
 
     }
 

@@ -54,6 +54,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
                 delete Memory.creeps[name];
             }
         }
+        Tick.managers = [];
+        Tick.directives = [];
+        Tick.Profiler = null;
+        Tick.routes = {}
 
         if (!Memory.manager || Memory.manager.length == 0) {
             if (Game.spawns['Spawn1'] == undefined) {
@@ -67,19 +71,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
                 "spawnQueue": []
             }];
         }
-
         for (let key in Memory.manager) {
             Tick.managers[key] = new Manager(0);
             Tick.managers[key].init();
         }
-
         let flags: Flag[] = Object.values(Game.flags);
         flags.forEach(flag => {
             let directive = new Directive(flag);
             directive.init();
             Tick.directives.push(directive);
         });
-
 
         // RUN
 
@@ -90,7 +91,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
         for (let key in Tick.managers) {
             Tick.managers[key].run();
         }
-
         for (let name in Game.creeps) {
             if (Game.creeps[name].memory.managerId != undefined) {
                 Game.creeps[name].manager = Tick.managers[Game.creeps[name].memory.managerId];

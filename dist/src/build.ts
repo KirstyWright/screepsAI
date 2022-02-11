@@ -40,9 +40,13 @@ export class BuildModule {
         if (manager.memory.buildQueue == undefined) {
             manager.memory.buildQueue = [];
         }
+
         if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.name == manager.room.name).length >= 1 && this.getCurrentSites(manager).length < 2) {
-            this.buildExtensions(manager);
-            this.createRoads(manager);
+            if (Game.time % 50 == 0) {
+                console.log('Hi');
+                this.buildExtensions(manager);
+                this.createRoads(manager);
+            }
         }
     }
     static getCurrentSites(manager: Manager) {
@@ -64,6 +68,8 @@ export class BuildModule {
         let roadsToBuild = 5;
         let sources = manager.memory.sources;
         // let sources = manager.room.find(FIND_SOURCES);
+        console.log('1 - '+Game.cpu.getUsed());
+        //
         for (let key in sources) {
             if (roadsToBuild <= 0) {
                 break;
@@ -87,6 +93,7 @@ export class BuildModule {
                 }
             }
         }
+        console.log('2 - '+Game.cpu.getUsed());
         // roads to structures
         let structures = manager.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
@@ -94,6 +101,7 @@ export class BuildModule {
                     || structure.structureType == STRUCTURE_TOWER);
             }
         });
+        console.log('3 - '+Game.cpu.getUsed());
         for (let key in structures) {
             let structure = structures[key];
             let path = PathFinder.search(spawn.pos, { pos: structure.pos, range: 1 }, this.pathfinderCostIgnoreRoads);
@@ -108,6 +116,7 @@ export class BuildModule {
                 }
             }
         }
+        console.log('4 - '+Game.cpu.getUsed());
 
     }
     static buildExtensions(manager: Manager) {

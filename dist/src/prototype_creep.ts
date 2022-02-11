@@ -113,18 +113,6 @@ Creep.prototype.genericRun = function(): boolean {
                 this.moveByPath(path);
                 moved = true;
 
-                new RoomVisual(this.room.name).text('I', this.pos.x, this.pos.y + 0.1, {
-                    color: 'white',
-                    font: 0.4
-                });
-
-                if (path.length > 0) {
-                    new RoomVisual(this.room.name).text(this.name, path[0].x, path[0].y + 0.1, {
-                        color: 'white',
-                        font: 0.2
-                    });
-                }
-
                 break;
             }
         }
@@ -176,17 +164,9 @@ Creep.prototype.getEnergy = function(useContainer?: boolean, useSource?: boolean
         };
 
         if (room) {
-            if (room.storage) {
-                container = room.storage;
-            } else {
-                container = room.find(FIND_STRUCTURES, obj)[0];
-            }
+            container = room.find(FIND_STRUCTURES, obj)[0];
         } else {
-            if (this.room.storage) {
-                container = this.room.storage;
-            } else {
-                container = this.pos.findClosestByRange(FIND_STRUCTURES, obj);
-            }
+            container = this.pos.findClosestByRange(FIND_STRUCTURES, obj);
         }
 
         if (container) {
