@@ -46,9 +46,9 @@ Creep.prototype.genericRun = function(): boolean {
     }
 
 
-    new RoomVisual(this.room.name).text(roleEmoji[this.memory.role], this.pos.x, this.pos.y + 0.1, {
+    new RoomVisual(this.room.name).text(roleEmoji[this.memory.role], this.pos.x, this.pos.y + 0.15 , {
         color: 'white',
-        font: 0.4
+        font: 0.5
     });
 
     if (!this.memory.respawn_complete) {
@@ -69,9 +69,19 @@ Creep.prototype.genericRun = function(): boolean {
         let enemies = this.room.find(FIND_HOSTILE_CREEPS);
         for (let key in enemies) {
             if (this.pos.inRangeTo(enemies[key], 5)) {
-                let path = PathFinder.search(this.pos, enemies.map(c => { return { pos: c.pos, range: 10 }; }), { flee: true }).path;
-                this.moveByPath(path);
-                moved = true;
+                // check their body parts
+                let attacker = false;
+                for (let i = 0; i < enemies[key].body.length; i++) {
+                    if (enemies[key].body[i].type === ATTACK || enemies[key].body[i].type === RANGED_ATTACK) {
+                        attacker = true;
+                        break;
+                    }
+                }
+                if (attacker) {
+                    let path = PathFinder.search(this.pos, enemies.map(c => { return { pos: c.pos, range: 10 }; }), { flee: true }).path;
+                    this.moveByPath(path);
+                    moved = true;
+                }
                 break;
             }
         }
