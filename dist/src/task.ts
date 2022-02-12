@@ -1,7 +1,10 @@
+import { Manager } from "manager";
 export class Task {
     hash: number;
     type: string;
     roles: Array<String>;
+    manager: Manager|null = null;
+
     constructor() {
         this.hash = 0;
         this.roles = [];

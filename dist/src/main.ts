@@ -23,10 +23,6 @@ String.prototype.hashCode = function() {
     }
     return hash;
 }
-// var Tick. Tick.= {
-//     managers: [],
-//     directives: [],
-// };
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -40,6 +36,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
                 let creep = Memory.creeps[name];
                 if (creep.role == 'miner') {
                     if (creep.managerId === undefined) {
+                        console.log('Miner didn\'t have a manager at spawn');
                         creep.managerId = 0;
                     }
                     let manager = Memory.manager[creep.managerId];

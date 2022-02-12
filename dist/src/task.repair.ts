@@ -53,6 +53,14 @@ export class RepairTask extends Task {
         if (this.target == undefined || this.target == null) {
             return false;
         }
+        if (
+            (this.target.structureType === STRUCTURE_WALL || this.target.structureType === STRUCTURE_RAMPART)
+            && this.manager
+            && this.target.hits >= this.manager.wallStrength
+        ) {
+            return false
+        }
+
         if (this.target.hits < this.target.hitsMax) {
             return true;
         }

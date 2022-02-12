@@ -40,6 +40,9 @@ export class TaskManager {
                 return (
                     (object.hits < hits &&
                         (object.structureType !== STRUCTURE_WALL && object.structureType !== STRUCTURE_RAMPART)
+                    ) || (
+                        (object.structureType === STRUCTURE_WALL || object.structureType === STRUCTURE_RAMPART)
+                        && object.hits < this.manager.wallStrength
                     )
                 );
             }
@@ -165,6 +168,7 @@ export class TaskManager {
     addTaskToQueue(task: Task): boolean {
         if (!this.tasks[task.hash]) {
             this.tasks[task.hash] = task;
+            task.manager = this.manager;
             return true;
         }
         return false;

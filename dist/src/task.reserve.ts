@@ -57,7 +57,7 @@ export class ReserveTask extends Task {
                 if (room.controller.my) {
                     return false;
                 }
-                if (room.controller.reservation && room.controller.reservation.ticksToEnd >= 5000) {
+                if (room.controller.reservation && room.controller.reservation.ticksToEnd >= 4999) {
                     return false;
                 }
 

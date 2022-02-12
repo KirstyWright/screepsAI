@@ -61,7 +61,7 @@ export class SpawnModule {
             for (let x in miners) {
                 if (Game.creeps[miners[x]]) {
                     let tempMiner = Game.creeps[miners[x]];
-                    if (tempMiner.ticksToLive && tempMiner.ticksToLive > 150) {
+                    if (tempMiner.ticksToLive && tempMiner.ticksToLive > 80) {
                         minerWillBeThereForAWhile = true;
                         break;
                     }
@@ -73,7 +73,6 @@ export class SpawnModule {
                 }
             }
             if (!minerWillBeThereForAWhile) {
-                console.log("Need a new miner for " + Spawner.manager.memory.sources[key].sourceId);
                 let result = Spawner.queueCreep({
                     role: 'miner',
                     sourceId: Spawner.manager.memory.sources[key].sourceId
@@ -98,24 +97,26 @@ export class SpawnModule {
         }
         // If I have storage then use the proper calculations
         if (Spawner.room && Spawner.room.storage) {
-            if (roles['upgrader'] < Math.min(5, Math.max(1, Math.ceil((Spawner.room.storage.store[RESOURCE_ENERGY]) / 20000)))) {
+            if (roles['upgrader'] < Math.min(5, Math.max(1, Math.ceil(Spawner.room.storage.store[RESOURCE_ENERGY] / 20000) - 1))) {
                 Spawner.queueCreep({
                     role: 'upgrader'
                 });
             }
         } else if (Spawner.room) {
-            if (roles['upgrader'] < 4 && Spawner.room.energyAvailable > 250) {
+            if (roles['upgrader'] < 2 && Spawner.room.energyAvailable > 250) {
                 Spawner.queueCreep({
                     role: 'upgrader'
                 });
             }
         }
 
-        if (roles['distributor'] < Math.max(1, Math.floor(Spawner.room.find(FIND_MY_STRUCTURES, {
+
+        let numberOfExtensions = Spawner.room.find(FIND_MY_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_EXTENSION;
             }
-        }).length / 30)) && roles['hauler'] > 0) {
+        }).length;
+        if (numberOfExtensions > 0 && roles['distributor'] < Math.max(1, Math.floor(numberOfExtensions / 30)) && roles['hauler'] > 0) {
             Spawner.queueCreep({
                 role: 'distributor'
             });
@@ -123,7 +124,7 @@ export class SpawnModule {
 
         let reserveTasksCount = Spawner.manager.taskManager.getTasksByType('reserve').length;
         if (reserveTasksCount > 0) {
-            if (roles['claimer'] < 1) {
+            if (roles['claimer'] < Math.max(1, reserveTasksCount)) {
                 Spawner.queueCreep({
                     role: 'claimer'
                 });

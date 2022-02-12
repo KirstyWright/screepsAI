@@ -9,6 +9,7 @@ export class Manager {
     creeps: Record<string, Creep> = {};
     spawners: StructureSpawn[];
     taskManager: TaskManager;
+    wallStrength: Number = 5000;
 
     constructor(id: number) {
         this.id = id;
