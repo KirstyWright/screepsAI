@@ -79,6 +79,7 @@ export class RoleMilita {
                 if (anotherTarget && creep.pos.inRangeTo(anotherTarget, 3)) {
                     creep.log('Found opportunity killing');
                     creep.attack(anotherTarget);
+                    return;
                 }
                 creep.travelTo(target, {
                     ignoreRoads: true,
