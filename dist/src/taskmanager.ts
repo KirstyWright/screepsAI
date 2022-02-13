@@ -14,7 +14,6 @@ export class TaskManager {
         this.tasks = {};
 
         this.loadFromMemory();
-        this.getNewTasks();
     }
     finish() {
         this.saveToMemory();

@@ -9,7 +9,7 @@ export class Manager {
     creeps: Record<string, Creep> = {};
     spawners: StructureSpawn[];
     taskManager: TaskManager;
-    wallStrength: Number = 5000;
+    wallStrength: Number = 1000;
 
     constructor(id: number) {
         this.id = id;
@@ -72,6 +72,10 @@ export class Manager {
             }
         }
 
+        if (this.room.controller && this.room.controller.level > 2) {
+            this.wallStrength = (this.room.controller.level * 1000) * 2;
+        }
+
     }
     addRoom(roomName: string) {
         let room = Game.rooms[roomName];
@@ -97,6 +101,9 @@ export class Manager {
         }
     }
     run() {
+
+        this.taskManager.getNewTasks();
+
         SpawnModule.run(this.spawners[0]);
         this.spawners.forEach(spawner => {
             spawner.attemptSpawning();
@@ -137,7 +144,7 @@ export class Manager {
                             (object.structureType !== STRUCTURE_WALL && object.structureType !== STRUCTURE_RAMPART)) ||
                         (
                             (object.structureType === STRUCTURE_WALL || object.structureType === STRUCTURE_RAMPART) &&
-                            object.hits < 5000
+                            object.hits < this.wallStrength
                         )
                     );
                 }
