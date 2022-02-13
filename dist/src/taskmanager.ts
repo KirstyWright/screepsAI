@@ -108,7 +108,7 @@ export class TaskManager {
 
         for (let i = 0; i < miningContainers.length; i++) {
             let container = Game.getObjectById(miningContainers[i]);
-            if (container && container.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && destination) {
+            if (container && container.store.getUsedCapacity(RESOURCE_ENERGY) > 100 && destination) {
                 let task = new CollectTask(container, destination, container.store.getUsedCapacity(RESOURCE_ENERGY));
                 if (!this.addTaskToQueue(task)) {
                     (<CollectTask>this.tasks[task.hash]).amount = container.store.getUsedCapacity(RESOURCE_ENERGY);
@@ -150,7 +150,7 @@ export class TaskManager {
 
             let task = new CollectTask(list[key], destination, amount);
             if (!this.addTaskToQueue(task)) {
-                if ((<CollectTask>this.tasks[task.hash]).amount !== amount && Math.abs((<CollectTask>this.tasks[task.hash]).amount - amount) < 100) {
+                if ((<CollectTask>this.tasks[task.hash]).amount !== amount && Math.abs((<CollectTask>this.tasks[task.hash]).amount - amount)) {
                     (<CollectTask>this.tasks[task.hash]).amount = amount;
                 }
             }
@@ -206,15 +206,9 @@ export class TaskManager {
     getNewTask(creep: Creep): null | Task {
         for (let hash in this.tasks) {
             let task = this.tasks[hash];
-            if (task.roles.includes(creep.memory.role)) {
-                let numberOfAssigned = Object.values(Game.creeps).filter((cp) => {
-                    return (cp.memory.taskHash && cp.memory.taskHash == task.hash);
-                }).length;
-
-                if (numberOfAssigned == 0) {
-                    creep.memory.taskHash = task.hash;
-                    return task;
-                }
+            if (task.canCreepHaveThisTask(creep)) {
+                creep.memory.taskHash = task.hash;
+                return task;
             }
         }
         return null;

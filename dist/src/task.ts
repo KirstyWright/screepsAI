@@ -21,6 +21,21 @@ export class Task {
     isValid(): boolean {
         return false;
     }
+    canCreepHaveThisTask(creep: Creep): boolean {
+
+        if (!this.roles.includes(creep.memory.role)) {
+            return false;
+        }
+
+        let numberOfAssigned = Object.values(Game.creeps).filter((cp) => {
+            return (cp.memory.taskHash && cp.memory.taskHash == this.hash);
+        }).length;
+
+        if (numberOfAssigned == 0) {
+            return true;
+        }
+        return false;
+    }
 }
 
 // module.exports = Task;

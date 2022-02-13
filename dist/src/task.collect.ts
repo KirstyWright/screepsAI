@@ -79,18 +79,11 @@ export class CollectTask extends Task {
                 if (pickup == ERR_NOT_IN_RANGE) {
                     creep.travelTo(this.origin);
                 }
-
-                if (pickup === OK) {
-                    creep.log("I am taking "+this.amount+" ("+creep.store.getCapacity()+") from "+this.origin.pos+" to take to "+this.destination.pos);
-                }
-
             }
         } else {
             let result = creep.transfer(this.destination, RESOURCE_ENERGY);
             if (result == ERR_NOT_IN_RANGE) {
                 creep.travelTo(this.destination);
-            } else if (result == OK) {
-                creep.log("I am giving "+this.amount+" ("+creep.store.getCapacity()+") to "+this.destination.pos+" from "+this.origin.pos);
             }
         }
     }
@@ -126,6 +119,24 @@ export class CollectTask extends Task {
         }
 
         return true;
+    }
+    canCreepHaveThisTask(creep: Creep): boolean {
+
+        if (!this.roles.includes(creep.memory.role)) {
+            return false;
+        }
+        let number = 0;
+        Object.values(Game.creeps).forEach(loopCreep => {
+            if (loopCreep.memory.taskHash && loopCreep.memory.taskHash == this.hash) {
+                number = number + (loopCreep.getActiveBodyparts(CARRY) * CARRY_CAPACITY);
+            }
+        });
+        if ((this.amount - number) > 500) {
+            // If there is more than 500 left over after all the current haulers are full then
+            // assign a second hauler
+            return true;
+        }
+        return false;
     }
 }
 
