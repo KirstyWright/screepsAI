@@ -8,11 +8,13 @@ const spawnRoles: Record< string, BodyPartConstant[]> = {
     'claimer': [MOVE, CLAIM],
     'milita': [TOUGH, RANGED_ATTACK, MOVE, MOVE],
     'distributor': [MOVE, CARRY, CARRY],
-    'scout': [MOVE, WORK]
+    'scout': [MOVE, WORK],
+    'cengineer': [TOUGH, WORK, MOVE],
+    'cmedic': [TOUGH, HEAL, MOVE]
 };
 
 const spawnPriority = [
-    'harvester', 'distributor', 'milita', 'miner', 'hauler', 'upgrader', 'builder', 'scout'
+    'harvester', 'distributor', 'milita', 'cengineer', 'cmedic', 'miner', 'hauler', 'upgrader', 'builder', 'scout'
     // 'harvester', 'distributor', 'milita', 'miner', 'hauler', 'builder', 'upgrader', 'claimer', 'scout'
 ];
 

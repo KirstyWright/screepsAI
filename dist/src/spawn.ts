@@ -14,7 +14,9 @@ export class SpawnModule {
             distributor: 0,
             milita: 0,
             claimer: 0,
-            scout: 0
+            scout: 0,
+            cengineer: 0,
+            cmedic: 0
         };
         let creepsInRoom = Spawner.manager.creeps;
         for (let key in creepsInRoom) {

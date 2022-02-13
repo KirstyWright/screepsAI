@@ -1,12 +1,14 @@
-import { RoleBuilder } from 'role.builder';
-import { RoleHarvester } from 'role.harvester';
-import { RoleUpgrader } from 'role.upgrader';
-import { RoleMiner } from 'role.miner';
-import { RoleHauler } from 'role.hauler';
-import { RoleClaimer } from 'role.claimer';
-import { RoleMilita } from 'role.milita';
-import { RoleDistributor } from 'role.distributor';
-import { RoleScout } from 'role.scout';
+import { RoleBuilder } from './role/role.builder';
+import { RoleHarvester } from './role/role.harvester';
+import { RoleUpgrader } from './role/role.upgrader';
+import { RoleMiner } from './role/role.miner';
+import { RoleHauler } from './role/role.hauler';
+import { RoleClaimer } from './role/role.claimer';
+import { RoleMilita } from './role/role.milita';
+import { RoleDistributor } from './role/role.distributor';
+import { RoleScout } from './role/role.scout';
+import { RoleCengineer } from './role/role.cengineer';
+import { RoleCmedic } from './role/role.cmedic';
 import { Helper } from 'helper';
 
 export { }
@@ -20,7 +22,9 @@ var roles: Record<string, any> = {
     'claimer': RoleClaimer,
     'milita': RoleMilita,
     'scout': RoleScout,
-    'distributor': RoleDistributor
+    'distributor': RoleDistributor,
+    'cengineer': RoleCengineer,
+    'cmedic': RoleCmedic
 };
 var roleEmoji: Record<string, string> = {
     'harvester': '⛏️',
@@ -31,7 +35,9 @@ var roleEmoji: Record<string, string> = {
     'claimer': '🏴‍☠️',
     'milita': '⚔️',
     'scout': '⚔️',
-    'distributor': '🧱'
+    'distributor': '🧱',
+    'cengineer': '🧨',
+    'cmedic': '🚑'
 };
 
 Creep.prototype.genericRun = function(): boolean {
@@ -94,8 +100,8 @@ Creep.prototype.genericRun = function(): boolean {
         let spawns = this.room.find(FIND_MY_SPAWNS);
         for (let key in spawns) {
             let spawner = spawns[key];
-            if (this.pos.inRangeTo(spawner.pos, 1)) {
-                let route = PathFinder.search(this.pos, { pos: spawner.pos, range: 2 }, {
+            if (this.pos.inRangeTo(spawner.pos, 3)) {
+                let route = PathFinder.search(this.pos, { pos: spawner.pos, range: 4 }, {
                     flee: true, roomCallback: function(roomName) {
                         let costMatrix = new PathFinder.CostMatrix();
 
