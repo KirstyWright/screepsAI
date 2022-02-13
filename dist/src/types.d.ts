@@ -35,7 +35,7 @@ interface Creep {
 
 interface StructureSpawn {
     attemptSpawning: () => void;
-    generateCreepName: (role: string) => string;
+    generateCreepName: () => string;
     queueCreep: (data: any) => { parts: any; role: any; name: any; data: any; };
     manager: Manager;
 }

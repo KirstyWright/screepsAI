@@ -25,7 +25,7 @@ Spawn.prototype.queueCreep = function(data) {
     let spawnObject = {
         parts: spawnRoles[data.role][250],
         role: data.role,
-        name: this.generateCreepName(data.role),
+        name: this.generateCreepName(),
         data: data
     };
     this.manager.memory.spawnQueue.push(spawnObject);
@@ -135,10 +135,10 @@ Spawn.prototype.attemptSpawning = function() {
     }
     this.manager.memory.spawnQueue = queue; // might as well overwrite in order
 };
-Spawn.prototype.generateCreepName = function(role) {
+Spawn.prototype.generateCreepName = function() {
     if (Memory.lastCreepId == undefined) {
         Memory.lastCreepId = 0;
     }
     Memory.lastCreepId = Memory.lastCreepId + 1;
-    return role + "-" + this.manager.id + ":" + Memory.lastCreepId;
+    return this.manager.id + ":" + Memory.lastCreepId;
 };

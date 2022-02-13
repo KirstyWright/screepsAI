@@ -148,6 +148,19 @@ export class Manager {
             }
         });
 
+        if (this.taskManager.getTasksByType('repair').length > 20) {
+            // keep one upgrader
+            let first = true;
+            Object.values(this.creeps).forEach(creep => {
+                if (creep.memory.role == 'upgrader') {
+                    if (first) {
+                        first = false;
+                        return;
+                    }
+                    creep.memory.role = 'builder';
+                }
+            });
+        }
     }
 
     findStructuresByTypeInRooms<T extends StructureConstant>(structureType: T, filter?: (s: ConcreteStructure<T>) => boolean): ConcreteStructure<T>[] {
