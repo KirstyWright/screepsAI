@@ -155,15 +155,6 @@ export class TaskManager {
                 }
             }
         }
-
-
-
-
-        // if (!Memory.temp || Memory.temp != 'ab') {
-        //     Memory.temp = 'ab';
-        //     let task = new ScoutTask('W43N28');
-        //     this.tasks[task.hash] = task;
-        // }
     }
     addTaskToQueue(task: Task): boolean {
         if (!this.tasks[task.hash]) {

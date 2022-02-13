@@ -101,7 +101,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
         Stats.exportStats(Tick.managers);
 
         if (Game.cpu.bucket >= 10000) {
-            Game.cpu.generatePixel();
+            if ("generatePixel" in Game.cpu) {
+                Game.cpu.generatePixel();
+            }
         }
     });
 });

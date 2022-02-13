@@ -81,7 +81,11 @@ export class SpawnModule {
             }
         }
 
-        if (roles['hauler'] < (roles['miner'] )) {
+        // get number of haulers needed from miners
+        if (
+            (roles['hauler'] < roles['miner'])
+            || Spawner.manager.room.storage && Spawner.manager.taskManager.getTasksByType('collect') > (roles['hauler'] + 1)
+        ) {
             Spawner.queueCreep({
                 role: 'hauler'
             });
@@ -137,16 +141,6 @@ export class SpawnModule {
                 });
             }
         }
-        // //
-
-        // if (!Memory.temp || Memory.temp != 'b') {
-        //     Memory.temp = 'b';
-        //     // Spawner.queueCreep({
-        //     //     role:'milita',
-        //     //     category:'raid',
-        //     //     targetRoom: 'W43N29'
-        //     // });
-        // }
 
     }
 };

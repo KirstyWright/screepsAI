@@ -23,7 +23,8 @@ export class Manager {
         this.spawners.forEach(spawner => {
             spawner.manager = this;
         });
-        this.taskManager = new TaskManager(this)
+        this.taskManager = new TaskManager(this);
+
     }
     log(content: any) {
         console.log("Manager:" + this.id + ': ' + String(content));

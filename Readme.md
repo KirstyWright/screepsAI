@@ -1,4 +1,5 @@
 # Plan
 * Fix scouting
 * Organise an emergency harvester builder
-* Find a way to better spawn in creeps
+* Collect tasks for large amounts or over large distances
+* Second room

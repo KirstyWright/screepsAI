@@ -81,8 +81,8 @@ Creep.prototype.genericRun = function(): boolean {
                     let path = PathFinder.search(this.pos, enemies.map(c => { return { pos: c.pos, range: 10 }; }), { flee: true }).path;
                     this.moveByPath(path);
                     moved = true;
+                    break;
                 }
-                break;
             }
         }
 
