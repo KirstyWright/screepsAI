@@ -160,6 +160,18 @@ export class Manager {
                     creep.memory.role = 'builder';
                 }
             });
+        } else if (this.taskManager.getTasksByType('repair').length < 4) {
+            // keep one upgrader
+            let first = 0;
+            Object.values(this.creeps).forEach(creep => {
+                if (creep.memory.role == 'builder') {
+                    if (first <= 3) {
+                        first = first + 1;
+                        return;
+                    }
+                    creep.memory.role = 'upgrader';
+                }
+            });
         }
     }
 

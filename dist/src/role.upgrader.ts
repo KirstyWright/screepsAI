@@ -7,6 +7,12 @@ export class RoleUpgrader {
         }
 
         if (creep.memory.emptying) {
+
+            if (creep.room != creep.manager.room) {
+                creep.travelTo(creep.manager.room.controller);
+                return;
+            }
+
             if (!creep.room.controller) {
                 return;
             }
