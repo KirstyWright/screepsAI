@@ -8,7 +8,7 @@ import { ScoutTask } from "task.scout";
 
 export class TaskManager {
     manager: Manager;
-    tasks: Record<string, Task>
+    tasks: Record<string, BuildTask|RepairTask|CollectTask|ReserveTask|ScoutTask|Task>
     constructor(manager: Manager) {
         this.manager = manager;
         this.tasks = {};
@@ -204,8 +204,25 @@ export class TaskManager {
         this.manager.memory.tasks = list;
     }
     getNewTask(creep: Creep): null | Task {
-        for (let hash in this.tasks) {
-            let task = this.tasks[hash];
+        let tempTasks: Record<number, Task> = {};
+        let count = 0;
+        Object.values(this.tasks).forEach(task => {
+            // Looks for target attribute on task
+            // If present then looks for tasks closest too creep and selects them instead of a random task
+            if ("target" in task &&  task.target.pos && (<RoomPosition>task.target.pos).roomName == creep.room.name) {
+                let pos = (<RoomPosition>task.target.pos);
+                let difference = Math.abs((pos.x - creep.pos.x) + (pos.y - creep.pos.y));
+
+                tempTasks[difference + count] = task;
+            } else {
+                tempTasks[count + 100] = task;
+            }
+            count = count + 1;
+        });
+        let newList = Object.entries(tempTasks).sort((a,b) => Number(a[0]) - Number(b[0]));
+
+        for (let key in newList) {
+            let task = newList[key][1];
             if (task.canCreepHaveThisTask(creep)) {
                 creep.memory.taskHash = task.hash;
                 return task;
