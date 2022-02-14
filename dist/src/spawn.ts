@@ -88,9 +88,14 @@ export class SpawnModule {
             (roles['hauler'] < roles['miner'])
             || Spawner.manager.room.storage && Spawner.manager.taskManager.getTasksByType('collect') > (roles['hauler'] + 1)
         ) {
-            Spawner.queueCreep({
-                role: 'hauler'
-            });
+            if (
+                Spawner.manager.room.storage && Spawner.manager.room.storage.store.getFreeCapacity(RESOURCE_ENERGY) > 10000
+                || !Spawner.manager.room.storage
+            ) {
+                Spawner.queueCreep({
+                    role: 'hauler'
+                });
+            }
         }
         if (roles['builder'] < Math.max(1, (
             Spawner.manager.taskManager.getTasksByType('build').length
