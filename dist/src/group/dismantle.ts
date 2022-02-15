@@ -3,12 +3,13 @@ import { Group } from "./group";
 export class GroupDismantle extends Group {
     targetRoom: string
 
-    constructor(stage: string, targetRoom: string) {
+    constructor(stage: string, targetRoom: string, recruitWhenEnded: boolean) {
         super();
         this.requiredCreeps = ['cengineer', 'cmedic']
         this.type = 'dismantle'
         this.stage = stage;
         this.targetRoom = targetRoom;
+        this.recruitWhenEnded = recruitWhenEnded;
         this.hash = String(this.type + targetRoom).hashCode();
     }
 
@@ -34,8 +35,12 @@ export class GroupDismantle extends Group {
             this.stage = "ACTIVE";
             this.log("Switching to ACTIVE");
         } else if (this.stage == 'ACTIVE' && this.creeps.length == 0) {
-            this.stage = "RECRUITING";
-            this.log("Switching to RECRUITING");
+            if (this.recruitWhenEnded) {
+                this.stage = "RECRUITING";
+                this.log("Switching to RECRUITING");
+            } else {
+                this.deleteGroup();
+            }
         }
 
         if (this.stage === "RECRUITING") {
@@ -51,7 +56,8 @@ export class GroupDismantle extends Group {
         return {
             type: this.type,
             stage: this.stage,
-            targetRoom: this.targetRoom
+            targetRoom: this.targetRoom,
+            recruitWhenEnded: this.recruitWhenEnded
         };
     }
 
@@ -166,7 +172,8 @@ export class GroupDismantle extends Group {
 
         return new GroupDismantle(
             memoryRecord.stage,
-            targetRoom
+            targetRoom,
+            memoryRecord.recruitWhenEnded
         );
     }
 };

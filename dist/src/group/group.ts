@@ -7,6 +7,7 @@ export class Group {
     manager: Manager|null = null
     type: string;
     hash: number;
+    recruitWhenEnded: boolean = false;
 
     constructor() {
         this.hash = 0;
@@ -37,5 +38,10 @@ export class Group {
         }
 
         return new Group();
+    }
+
+    deleteGroup() {
+        this.log('Auto purging group');
+        this.type = 'pendingDeletion';
     }
 }

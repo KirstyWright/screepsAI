@@ -28,7 +28,6 @@ export class GroupManager {
                     group = GroupCombat.buildFromMemory(memoryGroup)
                     break;
                 default:
-                    console.log("Invalid task " + hash);
                     continue;
             }
             if (group) {
@@ -49,7 +48,7 @@ export class GroupManager {
     addGroup(group: Group) {
         this.groups[group.hash] = group;
     }
-    deleteGroup(hash: string) {
+    deleteGroup(hash: number) {
         delete this.groups[hash];
     }
     init() { }

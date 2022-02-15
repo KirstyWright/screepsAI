@@ -4,9 +4,9 @@ import { ErrorMapper } from "utils/ErrorMapper";
 import { Manager } from "manager";
 import { Stats } from "stats";
 import { Directive } from "directive";
-// require("prototype_creep.ts");
-// var Traveler = require('Traveler');
+import { Cache } from "./cache/cache";
 import "Traveler";
+
 // declare var profiler: any;
 import * as profiler from './screeps-profiler';
 import { Tick } from "Tick";
@@ -24,7 +24,10 @@ String.prototype.hashCode = function() {
     return hash;
 }
 
-var global = {}
+var global = {
+    cache: new Cache()
+}
+console.log("Global refreshed, rebuilding cache");
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 profiler.enable();

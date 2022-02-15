@@ -17,10 +17,9 @@ export class DirectiveAssault extends DirectiveBase {
         if (!Game.rooms[this.flag.pos.roomName]) {
 
         }
-        let group = new GroupDismantle("RECRUITING", this.flag.pos.roomName);
-        if (!this.manager.groupManager.groups[group.hash]) {
-            console.log('need a group')
-            this.manager.groupManager.addGroup(group);
+        let dgroup = new GroupDismantle("RECRUITING", this.flag.pos.roomName, false);
+        if (!this.manager.groupManager.groups[dgroup.hash]) {
+            this.manager.groupManager.addGroup(dgroup);
         }
     }
 

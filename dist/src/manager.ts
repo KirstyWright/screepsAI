@@ -2,7 +2,7 @@ import { TaskManager } from "taskmanager";
 import { GroupManager } from "groupmanager";
 import { SpawnModule } from "spawn";
 import { BuildModule } from "build";
-import { GroupDismantle } from "./group/dismantle";
+import { GroupCombat } from "./group/combat";
 
 export class Manager {
     memory: any;
@@ -47,6 +47,10 @@ export class Manager {
 
         if (!this.memory.tasks) {
             this.memory.tasks = [];
+        }
+
+        if (!this.memory.variables) {
+            this.memory.variables = {};
         }
 
         if (!this.memory.rooms || this.memory.rooms.length == 0) {
@@ -165,6 +169,7 @@ export class Manager {
 
 
         this.groupManager.run();
+        this.manageDefenses();
         if (this.taskManager.getTasksByType('repair').length > 20) {
             // keep one upgrader
             let first = true;
@@ -238,6 +243,69 @@ export class Manager {
             data.role = role;
             spawner.queueCreep(data);
         }
+    }
+
+    /**
+     * [manageDefenses description]
+     * level1
+     * - Normal ops
+     * level2
+     * - Triggered by a hostile creep (includes invaders)
+     * - Drops to level1 when no hostile creeps
+     * - Defender creep to room in question
+     * level3
+     * - Triggered by hostile creeps (includes invaders) in room for longer than 50 ticks or more than 2 creeps
+     * - Drops to level 2 when all killed
+     * - Defender creep group to room in question
+     */
+    manageDefenses(): void
+    {
+        let hostileCreepsInRooms: Creep[] = this.findInRooms(FIND_HOSTILE_CREEPS);
+        let militiaCreeps = Object.values(this.creeps).filter( (creep) => {
+            return creep.memory.role == 'militia';
+        });
+
+
+        switch (this.memory.variables.defenseLevel) {
+            case 1:
+                // Do we need to go up?
+                if (hostileCreepsInRooms.length > 0) {
+                    this.changeDefenseLevel(2);
+                }
+                break;
+            case 2:
+
+                if (militiaCreeps.length < 2) {
+                    this.scheduleCreepIfNotInQueue('militia', {category:'patrol'});
+                }
+
+                if (hostileCreepsInRooms.length == 0) {
+                    this.changeDefenseLevel(1);
+                } else if (hostileCreepsInRooms.length > 2 || Game.time < (this.memory.variables.defenseLevelModifiedTick + 50)) {
+                    this.changeDefenseLevel(3);
+                }
+                break;
+            case 3:
+                let cgroup = new GroupCombat("RECRUITING", this.room.name, false);
+
+                if (!this.groupManager.groups[cgroup.hash]) {
+                    this.groupManager.addGroup(cgroup);
+                }
+
+                if (hostileCreepsInRooms.length == 0) {
+                    this.changeDefenseLevel(2);
+                    // Group gets autodeleted by constructor
+                }
+                break;
+            default:
+                this.changeDefenseLevel(1);
+        }
+    }
+
+    changeDefenseLevel(level: Number): void {
+        this.log('Defense level changing from '+this.memory.variables.defenseLevel+' to '+level)
+        this.memory.variables.defenseLevel = level;
+        this.memory.variables.defenseLevelModifiedTick = Game.time;
     }
 
 }

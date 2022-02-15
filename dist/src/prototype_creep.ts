@@ -4,7 +4,7 @@ import { RoleUpgrader } from './role/role.upgrader';
 import { RoleMiner } from './role/role.miner';
 import { RoleHauler } from './role/role.hauler';
 import { RoleClaimer } from './role/role.claimer';
-import { RoleMilita } from './role/role.milita';
+import { RoleMilitia } from './role/role.militia';
 import { RoleDistributor } from './role/role.distributor';
 import { RoleScout } from './role/role.scout';
 import { RoleCengineer } from './role/role.cengineer';
@@ -20,7 +20,7 @@ var roles: Record<string, any> = {
     'miner': RoleMiner,
     'hauler': RoleHauler,
     'claimer': RoleClaimer,
-    'milita': RoleMilita,
+    'militia': RoleMilitia,
     'scout': RoleScout,
     'distributor': RoleDistributor,
     'cengineer': RoleCengineer,
@@ -33,7 +33,7 @@ var roleEmoji: Record<string, string> = {
     'miner': '⚠️',
     'hauler': '🚚',
     'claimer': '🏴‍☠️',
-    'milita': '⚔️',
+    'militia': '⚔️',
     'scout': '⚔️',
     'distributor': '🧱',
     'cengineer': '🧨',
@@ -70,7 +70,7 @@ Creep.prototype.genericRun = function(): boolean {
     }
 
     let moved = false;
-    if (!['scout', 'milita', 'cengineer', 'cmedic'].includes(this.memory.role)) {
+    if (!['scout', 'militia', 'cengineer', 'cmedic'].includes(this.memory.role)) {
         // check hostiles and flee
         let enemies = this.room.find(FIND_HOSTILE_CREEPS);
         for (let key in enemies) {
