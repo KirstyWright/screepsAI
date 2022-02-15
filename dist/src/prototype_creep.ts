@@ -70,7 +70,7 @@ Creep.prototype.genericRun = function(): boolean {
     }
 
     let moved = false;
-    if (!['scout', 'milita'].includes(this.memory.role)) {
+    if (!['scout', 'milita', 'cengineer', 'cmedic'].includes(this.memory.role)) {
         // check hostiles and flee
         let enemies = this.room.find(FIND_HOSTILE_CREEPS);
         for (let key in enemies) {
@@ -96,7 +96,7 @@ Creep.prototype.genericRun = function(): boolean {
     }
 
     // <StructureSpawn>
-    if (this.idleMovement) {
+    if (this.idleMovement && this.memory.role != 'distributor') {
         let spawns = this.room.find(FIND_MY_SPAWNS);
         for (let key in spawns) {
             let spawner = spawns[key];
@@ -148,6 +148,53 @@ Creep.prototype.run = function() {
     if (!moved) {
         roles[this.memory.role].run(this);
     }
+
+    if (!moved && !this.moved) {
+        if (this.pos.x == 0) {
+            if (this.move(RIGHT) == OK) {
+                return;
+            }
+            if (this.move(TOP_RIGHT) == OK) {
+                return;
+            }
+            if (this.move(BOTTOM_RIGHT) == OK) {
+                return;
+            }
+        } else if (this.pos.x == 49) {
+            if (this.move(LEFT) == OK) {
+                return;
+            }
+            if (this.move(TOP_LEFT) == OK) {
+                return;
+            }
+            if (this.move(BOTTOM_LEFT) == OK) {
+                return;
+            }
+        } else if (this.pos.x == 0) {
+            if (this.move(BOTTOM_LEFT) == OK) {
+                return;
+            }
+            if (this.move(BOTTOM) == OK) {
+                return;
+            }
+            if (this.move(BOTTOM_RIGHT) == OK) {
+                return;
+            }
+        }
+        else if (this.pos.y == 49) {
+            if (this.move(TOP_LEFT) == OK) {
+                return;
+            }
+            if (this.move(TOP) == OK) {
+                return;
+            }
+            if (this.move(TOP_RIGHT) == OK) {
+                return;
+            }
+       }
+    }
+
+
 
     if (!this.fatigue) {
         this.memory.lastPos = Helper.savePos(this.pos);;

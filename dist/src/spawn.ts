@@ -4,6 +4,7 @@ export class SpawnModule {
         this.queueNeededCreeps(spawn);
     }
 
+    //TODO move this to Manager::scheduleCreepIfNotInQueue
     static queueNeededCreeps(Spawner: StructureSpawn): void {
         let roles: Record<string, number> = {
             harvester: 0,
@@ -49,7 +50,15 @@ export class SpawnModule {
             }
         }
 
-        if (roles['harvester'] < 2 && roles['miner'] < 2 && roles['hauler'] < 1) {
+        if (
+            roles['harvester'] < 2
+            && roles['miner'] < 2
+            && roles['hauler'] < 1
+            && (
+                !Spawner.manager.room.storage
+                || Spawner.manager.room.storage && Spawner.manager.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 20000
+            )
+        ) {
             Spawner.queueCreep({
                 role: 'harvester'
             });

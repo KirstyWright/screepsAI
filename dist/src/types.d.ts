@@ -12,6 +12,7 @@ interface CreepMemory {
     targetId?: string|null;
     emptying?: boolean;
     taskHash?: any;
+    groupHash?: any;
     sourceId?: null | string;
     respawn_complete?: boolean;
     role: string;
@@ -31,6 +32,7 @@ interface Creep {
     manager: Manager;
     run: () => void;
     task?: typeof Task;
+    moved: boolean;
 }
 
 interface StructureSpawn {

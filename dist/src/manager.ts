@@ -1,6 +1,8 @@
 import { TaskManager } from "taskmanager";
+import { GroupManager } from "groupmanager";
 import { SpawnModule } from "spawn";
 import { BuildModule } from "build";
+import { GroupDismantle } from "./group/dismantle";
 
 export class Manager {
     memory: any;
@@ -9,6 +11,7 @@ export class Manager {
     creeps: Record<string, Creep> = {};
     spawners: StructureSpawn[];
     taskManager: TaskManager;
+    groupManager: GroupManager;
     wallStrength: Number = 1000;
 
     constructor(id: number) {
@@ -24,6 +27,7 @@ export class Manager {
             spawner.manager = this;
         });
         this.taskManager = new TaskManager(this);
+        this.groupManager = new GroupManager(this);
 
     }
     log(content: any) {
@@ -32,6 +36,9 @@ export class Manager {
     init() {
         if (!this.memory.creeps) {
             this.memory.creeps = [];
+        }
+        if (!this.memory.groups) {
+            this.memory.groups = [];
         }
 
         if (!this.memory.spawnQueue) {
@@ -69,6 +76,7 @@ export class Manager {
                 this.memory.creeps.splice(key, 1);
             } else {
                 this.creeps[key] = Game.creeps[this.memory.creeps[key]];
+                this.creeps[key].moved = false;
             }
         }
 
@@ -155,6 +163,8 @@ export class Manager {
             }
         });
 
+
+        this.groupManager.run();
         if (this.taskManager.getTasksByType('repair').length > 20) {
             // keep one upgrader
             let first = true;
@@ -168,7 +178,6 @@ export class Manager {
                 }
             });
         } else if (this.taskManager.getTasksByType('repair').length < 4) {
-            // keep one upgrader
             let first = 0;
             Object.values(this.creeps).forEach(creep => {
                 if (creep.memory.role == 'builder') {
@@ -207,5 +216,28 @@ export class Manager {
     }
     finish() {
         this.taskManager.finish();
+        this.groupManager.finish();
     }
+
+    scheduleCreepIfNotInQueue(role: string, data: Record<string, any>) {
+        let queue = this.memory.spawnQueue;
+        let inQueue = false;
+        for (let i = 0; i < queue.length; i++) {
+            let item = queue[i];
+            if (item.role == role) {
+                for (let key in item.data) {
+                    if (data[key] && data[key] == item.data[key]) {
+                        inQueue = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!inQueue) {
+            let spawner = this.spawners[0];
+            data.role = role;
+            spawner.queueCreep(data);
+        }
+    }
+
 }

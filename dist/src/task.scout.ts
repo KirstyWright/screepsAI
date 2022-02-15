@@ -60,17 +60,18 @@ export class ScoutTask extends Task {
         if (this.target == undefined || this.target == null) {
             return false;
         }
-        if (Game.rooms[this.target] && Game.rooms[this.target].controller) {
-            let room = Game.rooms[this.target];
-            if (room.controller) {
-                if (room.controller.my) {
-                    return false;
-                }
-                if (room.controller.reservation) {
-                    return false;
-                }
-
-            }
+        if (Game.rooms[this.target]) {
+            return false;
+            // let room = Game.rooms[this.target];
+            // if (room.controller) {
+            //     if (room.controller.my) {
+            //         return false;
+            //     }
+            //     if (room.controller.reservation) {
+            //         return false;
+            //     }
+            //
+            // }
         }
         return true;
     }
