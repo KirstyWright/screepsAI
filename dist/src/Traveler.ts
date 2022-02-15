@@ -21,7 +21,7 @@ export class Traveler {
     public static travelTo(creep: Creep, destination: HasPos|RoomPosition, options: TravelToOptions = {}): number {
 
         // uncomment if you would like to register hostile rooms entered
-        this.updateRoomStatus(creep.room);
+        // this.updateRoomStatus(creep.room);
 
         if (!destination) {
             return ERR_INVALID_ARGS;
@@ -149,6 +149,7 @@ export class Traveler {
             options.returnData.state = state;
             options.returnData.path = travelData.path;
         }
+        creep.moved = true;
         return creep.move(nextDirection);
     }
 
