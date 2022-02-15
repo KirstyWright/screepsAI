@@ -6,7 +6,7 @@ const spawnRoles: Record< string, BodyPartConstant[]> = {
     'miner': [MOVE, WORK, WORK],
     'hauler': [MOVE, CARRY, CARRY],
     'claimer': [MOVE, CLAIM],
-    'milita': [TOUGH, RANGED_ATTACK, MOVE, MOVE],
+    'militia': [TOUGH, RANGED_ATTACK, MOVE, MOVE],
     'distributor': [MOVE, CARRY, CARRY],
     'scout': [MOVE, WORK],
     'cengineer': [TOUGH, WORK, MOVE],
@@ -14,8 +14,8 @@ const spawnRoles: Record< string, BodyPartConstant[]> = {
 };
 
 const spawnPriority = [
-    'harvester', 'distributor', 'milita', 'cengineer', 'cmedic', 'miner', 'claimer', 'hauler', 'upgrader', 'builder', 'scout'
-    // 'harvester', 'distributor', 'milita', 'miner', 'hauler', 'builder', 'upgrader', 'claimer', 'scout'
+    'harvester', 'distributor', 'militia', 'cengineer', 'cmedic', 'miner', 'claimer', 'hauler', 'upgrader', 'builder', 'scout'
+    // 'harvester', 'distributor', 'militia', 'miner', 'hauler', 'builder', 'upgrader', 'claimer', 'scout'
 ];
 
 Spawn.prototype.queueCreep = function(data) {

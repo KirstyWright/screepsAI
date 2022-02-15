@@ -28,7 +28,7 @@ export class Stats {
                     distributor: Object.values(manager.creeps).filter( (creep) => creep.memory.role === 'distributor').length,
                     harvester: Object.values(manager.creeps).filter( (creep) => creep.memory.role === 'harvester').length,
                     hauler: Object.values(manager.creeps).filter( (creep) => creep.memory.role === 'hauler').length,
-                    milita: Object.values(manager.creeps).filter( (creep) => creep.memory.role === 'milita').length,
+                    militia: Object.values(manager.creeps).filter( (creep) => creep.memory.role === 'militia').length,
                     miner: Object.values(manager.creeps).filter( (creep) => creep.memory.role === 'miner').length,
                     scout: Object.values(manager.creeps).filter( (creep) => creep.memory.role === 'scout').length,
                     upgrader: Object.values(manager.creeps).filter( (creep) => creep.memory.role === 'upgrader').length

@@ -13,7 +13,7 @@ export class SpawnModule {
             miner: 0,
             hauler: 0,
             distributor: 0,
-            milita: 0,
+            militia: 0,
             claimer: 0,
             scout: 0,
             cengineer: 0,
@@ -42,9 +42,9 @@ export class SpawnModule {
             }
         }
         if (enemies > 0) {
-            if (roles['milita'] < 2) {
+            if (roles['militia'] < 2) {
                 Spawner.queueCreep({
-                    role: 'milita',
+                    role: 'militia',
                     category: 'patrol'
                 });
             }

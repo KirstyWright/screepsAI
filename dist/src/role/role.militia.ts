@@ -1,4 +1,4 @@
-export class RoleMilita {
+export class RoleMilitia {
     static run(creep: Creep) {
         switch (creep.memory.category) {
             case "raid":
@@ -7,7 +7,7 @@ export class RoleMilita {
                     return;
                 }
                 if (creep.room.name != creep.memory.targetRoom && _.filter(Game.creeps, (object) => {
-                    return object.memory.role == 'milita' && object.memory.targetRoom == creep.memory.targetRoom;
+                    return object.memory.role == 'militia' && object.memory.targetRoom == creep.memory.targetRoom;
                 }).length < 4) {
                     return;
                 } else if (creep.room.name != creep.memory.targetRoom) {
@@ -19,9 +19,10 @@ export class RoleMilita {
                     return this.raid(creep);
                 }
                 break;
-            default:
             case "patrol":
                 return this.findInManagerRoomsAndAttack(creep);
+            default:
+                return;
         }
     }
     static raid(creep: Creep) {
@@ -74,15 +75,6 @@ export class RoleMilita {
             if (attackMove == OK) {
                 let path = PathFinder.search(creep.pos, creep.room.find(FIND_HOSTILE_CREEPS).map(c => { return { pos: c.pos, range: 3 }; }), { flee: true }).path;
                 creep.moveByPath(path);
-                if (creep.pos.x === 49) {
-                    creep.move(TOP)
-                } else if (creep.pos.x === 0) {
-                    creep.move(BOTTOM);
-                } else if (creep.pos.y === 49) {
-                    creep.move(LEFT);
-                } else if (creep.pos.x === 0) {
-                    creep.move(RIGHT);
-                }
             } else if (attackMove == ERR_NOT_IN_RANGE) {
                 let anotherTarget = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
                 if (anotherTarget && creep.pos.inRangeTo(anotherTarget, 3)) {
@@ -115,7 +107,6 @@ export class RoleMilita {
                         });
                     }
                 }
-
             }
         } else {
             this.attackTarget(creep);
