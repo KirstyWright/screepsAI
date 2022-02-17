@@ -4,6 +4,7 @@ import { DirectiveBase } from 'directive/base';
 import { DirectiveScout } from 'directive/scout';
 import { DirectiveMine } from 'directive/mine';
 import { DirectiveAssault } from 'directive/assault';
+import { DirectiveCombat } from 'directive/combat';
 import { Tick } from 'Tick';
 
 // Flag control system
@@ -70,6 +71,8 @@ export class Directive {
                         return new DirectiveScout(directive);
                     case COLOR_CYAN:
                         return new DirectiveAssault(directive);
+                    case COLOR_GREEN:
+                        return new DirectiveCombat(directive);
                     default:
                         return null;
                 }

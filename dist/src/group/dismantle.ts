@@ -30,7 +30,6 @@ export class GroupDismantle extends Group {
                 }
             }
         }
-
         if (this.stage === "RECRUITING" && tempList.length == 0) {
             this.stage = "ACTIVE";
             this.log("Switching to ACTIVE");
@@ -89,9 +88,9 @@ export class GroupDismantle extends Group {
             } else {
 
                 // If nearly dead
-                if (creep.hits <= (creep.hitsMax / 3)) {
+                if (creep.hits <= (creep.hitsMax / 3) && this.manager) {
                     this.log("Creeps low health - retreating");
-                    creep.travelTo(new RoomPosition(25, 25, creep.manager.room.name));
+                    creep.travelTo(new RoomPosition(25, 25, this.manager.room.name));
                     return;
                 }
 

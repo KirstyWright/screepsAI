@@ -21,7 +21,7 @@ export class BuildModule {
             room.find(FIND_STRUCTURES).forEach(function(struct) {
                 if (struct.structureType === STRUCTURE_ROAD) {
                     // Favor roads over plain tiles
-                    costs.set(struct.pos.x, struct.pos.y, 2);
+                    costs.set(struct.pos.x, struct.pos.y, 1);
                 } else if (struct.structureType !== STRUCTURE_CONTAINER &&
                     (struct.structureType !== STRUCTURE_RAMPART ||
                         !struct.my)) {
@@ -29,7 +29,7 @@ export class BuildModule {
                     costs.set(struct.pos.x, struct.pos.y, 0xff);
                 }
                 room.find(FIND_CREEPS).forEach(function(creep) {
-                    costs.set(creep.pos.x, creep.pos.y, 0);
+                    costs.set(creep.pos.x, creep.pos.y, 1);
                 });
             });
             return costs;
@@ -80,8 +80,8 @@ export class BuildModule {
                 range: 1
             },
             {
-                plainCost: 3,
-                swampCost: 3,
+                plainCost: 2,
+                swampCost: 2,
                 roomCallback: this.pathfinderCostIgnoreRoads.roomCallback
             });
             for (let pathKey in pathFinder.path) {

@@ -33,23 +33,6 @@ export class SpawnModule {
             }
         }
 
-        // DEFENSIVE CODE
-        let enemies = 0;
-        for (let key in Spawner.manager.memory.rooms) {
-            let room = Game.rooms[Spawner.manager.memory.rooms[key]];
-            if (room) {
-                enemies = enemies + Spawner.manager.findInRooms(FIND_HOSTILE_CREEPS).length;
-            }
-        }
-        if (enemies > 0) {
-            if (roles['militia'] < 2) {
-                Spawner.queueCreep({
-                    role: 'militia',
-                    category: 'patrol'
-                });
-            }
-        }
-
         if (
             roles['harvester'] < 2
             && roles['miner'] < 2
@@ -84,6 +67,7 @@ export class SpawnModule {
                 }
             }
             if (!minerWillBeThereForAWhile) {
+                console.log("Need a new miner for " + Spawner.manager.memory.sources[key].sourceId);
                 let result = Spawner.queueCreep({
                     role: 'miner',
                     sourceId: Spawner.manager.memory.sources[key].sourceId
@@ -106,32 +90,58 @@ export class SpawnModule {
                 });
             }
         }
-        if (roles['builder'] < Math.max(1, (
-            Spawner.manager.taskManager.getTasksByType('build').length
-            + Spawner.manager.taskManager.getTasksByType('repair').length
-        ) / 10)) {
-        // if (roles['builder'] < Math.min(1, Spawner.room.find(FIND_CONSTRUCTION_SITES).length / 10)) {
-            Spawner.queueCreep({
-                role: 'builder'
-            });
-        }
-        // If I have storage then use the proper calculations
+
+
+        // minimum of 1 builder & 1 upgrader
+
+        let developmentCreepsCount = roles['builder'] + roles['upgrader'];
+        let maxNo = 8;
+
         if (Spawner.room && Spawner.room.storage) {
             if (
-                (roles['upgrader'] < Math.min(5, Math.max(1, Math.ceil(Spawner.room.storage.store[RESOURCE_ENERGY] / 20000) - 1)))
+                (developmentCreepsCount < Math.min(maxNo, Math.max(1, Math.ceil(Spawner.room.storage.store[RESOURCE_ENERGY] / 20000) - 1)))
                 && Spawner.manager.memory.spawnQueue.length < 5
             ) {
                 Spawner.queueCreep({
-                    role: 'upgrader'
+                    role: 'builder'
                 });
             }
         } else if (Spawner.room) {
-            if (roles['upgrader'] < 2 && Spawner.room.energyAvailable > 250) {
+            if (developmentCreepsCount < 3 && Spawner.room.energyAvailable > 250) {
                 Spawner.queueCreep({
-                    role: 'upgrader'
+                    role: 'builder'
                 });
             }
         }
+
+
+        // if (roles['builder'] < Math.max(1, (
+        //     Spawner.manager.taskManager.getTasksByType('build').length
+        //     + Spawner.manager.taskManager.getTasksByType('repair').length
+        // ) / 10)) {
+        // // if (roles['builder'] < Math.min(1, Spawner.room.find(FIND_CONSTRUCTION_SITES).length / 10)) {
+        //     Spawner.queueCreep({
+        //         role: 'builder'
+        //     });
+        // }
+        // If I have storage then use the proper calculations
+        // if (Spawner.room && Spawner.room.storage) {
+        //     if (
+        //         (roles['upgrader'] < Math.min(5, Math.max(1, Math.ceil(Spawner.room.storage.store[RESOURCE_ENERGY] / 20000) - 1)))
+        //         && Spawner.manager.memory.spawnQueue.length < 5
+        //     ) {
+        //         Spawner.queueCreep({
+        //             role: 'upgrader'
+        //         });
+        //     }
+        // } else if (Spawner.room) {
+        //     if (roles['upgrader'] < 2 && Spawner.room.energyAvailable > 250) {
+        //         Spawner.queueCreep({
+        //             role: 'upgrader'
+        //         });
+        //     }
+        // }
+
 
 
         let numberOfExtensions = Spawner.room.find(FIND_MY_STRUCTURES, {

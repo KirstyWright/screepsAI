@@ -84,6 +84,22 @@ export class Manager {
             }
         }
 
+        // for (let key in this.memory.sources) {
+        //     let sourceMemory = this.memory.sources[key];
+        //     for (let i = 0; i < sourceMemory.miners.length; i++) {
+        //         if (!Game.creeps[sourceMemory.miners[i]]) {
+        //             let result = this.scheduleCreepIfNotInQueue('miner', {sourceId:sourceMemory.sourceId}, true);
+        //             if (!result) {
+        //                 console.log('Removing miner '+ sourceMemory.miners[i] + ' from source');
+        //                 delete this.memory.sources[key].miners[i];
+        //             } else {
+        //                 // console.log('miner '+sourceMemory.miners[i] + " is in spawn queue");
+        //             }
+        //             // sourceId: Spawner.manager.memory.sources[key].sourceId
+        //         }
+        //     }
+        // }
+
         if (this.room.controller && this.room.controller.level > 2) {
             this.wallStrength = (this.room.controller.level * 1000) * 2;
         }
@@ -170,29 +186,41 @@ export class Manager {
 
         this.groupManager.run();
         this.manageDefenses();
-        if (this.taskManager.getTasksByType('repair').length > 20) {
-            // keep one upgrader
-            let first = true;
+
+        let builderTasks = this.taskManager.getTasksByType('repair').length + this.taskManager.getTasksByType('build').length;
+        let builders = Object.values(this.creeps).filter( creep => creep.memory.role == 'builder');
+        let upgraders = Object.values(this.creeps).filter( creep => creep.memory.role == 'upgrader');
+        let numOfBuildersNeeded = Math.ceil(builderTasks / 10);
+        let count: number;
+
+        if (numOfBuildersNeeded < builders.length && upgraders.length > 2) {
+            count = 0;
             Object.values(this.creeps).forEach(creep => {
                 if (creep.memory.role == 'upgrader') {
-                    if (first) {
-                        first = false;
+                    if (count <= 2) {
+                        count = count + 1;
                         return;
                     }
+                    this.log("Converting a upgrader to builder ("+creep.name+")");
                     creep.memory.role = 'builder';
                 }
             });
-        } else if (this.taskManager.getTasksByType('repair').length < 4) {
-            let first = 0;
+        } else if (builders.length > numOfBuildersNeeded) {
+            count = builders.length;
             Object.values(this.creeps).forEach(creep => {
                 if (creep.memory.role == 'builder') {
-                    if (first <= 3) {
-                        first = first + 1;
+                    if (count <= 2) {
+                        count = count + 1;
                         return;
                     }
+                    this.log("Converting a builder to upgrader ("+creep.name+")");
                     creep.memory.role = 'upgrader';
                 }
             });
+        }
+        if (this.room.controller && this.room.controller.ticksToDowngrade < 200) {
+            // PANIC
+            console.log('Controller near downgrade!!!')
         }
     }
 
@@ -224,7 +252,7 @@ export class Manager {
         this.groupManager.finish();
     }
 
-    scheduleCreepIfNotInQueue(role: string, data: Record<string, any>) {
+    scheduleCreepIfNotInQueue(role: string, data: Record<string, any>, dry: boolean = false): boolean {
         let queue = this.memory.spawnQueue;
         let inQueue = false;
         for (let i = 0; i < queue.length; i++) {
@@ -238,11 +266,12 @@ export class Manager {
                 }
             }
         }
-        if (!inQueue) {
+        if (!inQueue && dry == false) {
             let spawner = this.spawners[0];
             data.role = role;
             spawner.queueCreep(data);
         }
+        return inQueue;
     }
 
     /**
@@ -274,18 +303,26 @@ export class Manager {
                 }
                 break;
             case 2:
-
+                if (hostileCreepsInRooms.length == 0) {
+                    this.changeDefenseLevel(1);
+                } else if (hostileCreepsInRooms.length > 4 || Game.time > (this.memory.variables.defenseLevelModifiedTick + 50)) {
+                    this.changeDefenseLevel(3);
+                }
+                break;
+            case 3:
                 if (militiaCreeps.length < 2) {
                     this.scheduleCreepIfNotInQueue('militia', {category:'patrol'});
                 }
 
                 if (hostileCreepsInRooms.length == 0) {
-                    this.changeDefenseLevel(1);
-                } else if (hostileCreepsInRooms.length > 2 || Game.time < (this.memory.variables.defenseLevelModifiedTick + 50)) {
-                    this.changeDefenseLevel(3);
+                    this.changeDefenseLevel(2);
+                    // Group gets autodeleted by constructor
+                }
+                if (Game.time > (this.memory.variables.defenseLevelModifiedTick + 500)) {
+                    // this.changeDefenseLevel(4);
                 }
                 break;
-            case 3:
+            case 4:
                 let cgroup = new GroupCombat("RECRUITING", this.room.name, false);
 
                 if (!this.groupManager.groups[cgroup.hash]) {
