@@ -7,7 +7,7 @@
   "author": "KirstyWright <kirsty@evecmdr.com>",
   "license": "MIT",
   "dependencies": {
-    "grunt": "^1.0.3",
+    "grunt": "^1.5.3",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-screeps": "^1.4.0"
   },
