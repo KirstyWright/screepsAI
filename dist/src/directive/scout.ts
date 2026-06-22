@@ -3,21 +3,19 @@ import { Directive } from "directive";
 import { ScoutTask } from "task.scout";
 
 export class DirectiveScout extends DirectiveBase {
+  constructor(directive: Directive) {
+    super(directive);
+    this.type = "scout";
+  }
 
-    constructor(directive: Directive) {
-        super(directive);
-        this.type = 'scout';
+  run() {
+    if (!this.manager) {
+      return;
     }
-
-    run() {
-        if (!this.manager) {
-            return;
-        }
-        if (!Game.rooms[this.flag.pos.roomName]) {
-            let task = new ScoutTask(this.flag.pos.roomName);
-            this.manager.taskManager.addTaskToQueue(task);
-        }
-        this.flag.remove();
+    if (!Game.rooms[this.flag.pos.roomName]) {
+      const task = new ScoutTask(this.flag.pos.roomName);
+      this.manager.taskManager.addTaskToQueue(task);
     }
-
+    this.flag.remove();
+  }
 }

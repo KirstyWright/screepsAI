@@ -1,4 +1,1 @@
-
-export class CachedBase {
-
-}
+export class CachedBase {}

@@ -1,25 +1,23 @@
+interface CachedCreepMemory {
+  id: Id<Creep>;
+}
+
 export class CachedCreep {
-    id: Id<Creep>
+  id: Id<Creep>;
 
+  constructor(id: Id<Creep>) {
+    this.id = id;
+  }
 
-    constructor(creep: Creep) {
-        this.id = creep.id;
+  storageData(): CachedCreepMemory {
+    return { id: this.id };
+  }
+
+  static buildFromMemory(memoryRecord: CachedCreepMemory): CachedCreep | false {
+    if (!memoryRecord.id) {
+      return false;
     }
 
-    storageData() {
-
-    }
-
-    static buildFromMemory(memoryRecord: Record<string, any>) {
-
-        let target = memoryRecord.target;
-        if (!target) {
-            return false;
-        }
-
-        return new CachedCreep(
-            target
-        );
-    }
-
+    return new CachedCreep(memoryRecord.id);
+  }
 }

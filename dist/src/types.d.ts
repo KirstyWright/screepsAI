@@ -1,89 +1,181 @@
-// example declaration file - remove these and add your own custom typings
+import { Manager } from "manager";
+import { Task } from "task";
 
-// import { Manager } from "manager";
-// import { Task } from "task";
+export {};
 
-// memory extension samples
-interface CreepMemory {
-    _travel: any;
-    _trav: any;
+declare global {
+  interface RoleRunner {
+    run(creep: Creep): void;
+  }
+
+  interface CreepSpawnData {
+    role?: string;
+    managerId?: number;
+    sourceId?: Id<Source> | string | null;
+    category?: string;
+    spawner?: string;
+    groupHash?: number;
+    [key: string]: string | number | boolean | null | undefined;
+  }
+
+  interface ManagerMemoryVariables {
+    defenseLevel?: number;
+    defenseLevelModifiedTick?: number;
+  }
+
+  interface ManagerMemorySpawnObject {
+    parts?: BodyPartConstant[];
+    role: string;
+    name: string;
+    data: CreepSpawnData & Partial<CreepMemory>;
+    spawned?: boolean;
+    spawner?: string;
+  }
+
+  interface ManagerMemoryTask {
+    hash?: number;
+    type: string;
+    target?: Id<ConstructionSite> | Id<Structure> | Id<Resource> | Id<Tombstone> | Id<Ruin> | string | null;
+    destination?: Id<Structure> | null;
+    amount?: number;
+    completed?: boolean;
+  }
+
+  interface ManagerMemoryGroup {
+    type: string;
+    stage?: string;
+    targetRoom?: string;
+    targetId?: Id<Creep> | null;
+    recruitWhenEnded?: boolean;
+    hash?: number;
+  }
+
+  interface ManagerMemorySources {
+    sourceId: Id<Source>;
+    miners: string[];
+    pos: RoomPosition;
+    containerId?: Id<StructureContainer> | null;
+  }
+
+  interface ManagerMemory {
+    creeps: string[];
+    sources: ManagerMemorySources[];
+    room: string;
+    rooms: string[];
+    spawnQueue: ManagerMemorySpawnObject[];
+    groups?: Record<string, ManagerMemoryGroup>;
+    tasks?: Record<string, ManagerMemoryTask>;
+    variables: ManagerMemoryVariables;
+    buildQueue?: unknown[];
+  }
+
+  interface MemoryStatsManager {
+    tasks: Record<string, number>;
+    creeps: Record<string, number>;
+  }
+
+  interface MemoryStatsRoom {
+    storageEnergy: number;
+    terminalEnergy: number;
+    energyAvailable: number;
+    energyCapacityAvailable: number;
+    controllerProgress: number;
+    controllerProgressTotal: number;
+    controllerLevel: number;
+  }
+
+  interface MemoryStats {
+    time?: number;
+    gcl: {
+      progress?: number;
+      progressTotal?: number;
+      level?: number;
+    };
+    rooms: Record<string, MemoryStatsRoom>;
+    cpu: {
+      bucket?: number;
+      limit?: number;
+      used?: number;
+    };
+    managers: Record<string, MemoryStatsManager>;
+  }
+
+  interface MemoryEmpire {
+    hostileRooms?: Record<string, boolean | number>;
+  }
+
+  interface MemoryRoutes {
+    [routeId: string]: unknown;
+  }
+
+  interface TaskTargetWithPos {
+    pos: RoomPosition;
+  }
+
+  interface CreepMemory {
+    _travel?: TravelData;
+    _trav?: TravelData;
     targetRoom?: string;
     category?: string;
-    targetId?: string|null;
+    targetId?: string | null;
     emptying?: boolean;
-    taskHash?: any;
-    groupHash?: any;
-    sourceId?: null | string;
+    taskHash?: number | null;
+    groupHash?: number;
+    sourceId?: null | Id<Source> | string;
     respawn_complete?: boolean;
     role: string;
     room?: string;
     lastPos?: string | null;
     managerId: number;
-}
+  }
 
-interface Creep {
+  interface Creep {
     genericRun: () => boolean;
     idleMovement: boolean;
-    findInManagerRooms: (type: any, opts: any) => any[];
-    moveToPos: (pos: any, opts?: any) => 0 | -1 | -4 | -11 | -12 | -2 | -7;
-    getEnergy: (useContainer?: any, useSource?: any, roomName?: any) => any;
+    findInManagerRooms: <K extends FindConstant>(
+      type: K,
+      opts?: FilterOptions<FindTypes[K], FindTypes[K]>
+    ) => FindTypes[K][];
+    moveToPos: (pos: RoomPosition, opts?: MoveToOpts) => ScreepsReturnCode;
+    getEnergy: (useContainer?: boolean, useSource?: boolean, roomName?: string, taskPosition?: RoomPosition) => ScreepsReturnCode | void;
     getManagerMemory: () => ManagerMemory;
-    log: (arg0: string) => void;
+    log: (content: string) => void;
     manager: Manager;
     run: () => void;
-    task?: typeof Task;
+    task?: Task | null;
     moved: boolean;
-}
+    travelTo: (target: RoomPosition | { pos: RoomPosition }, opts?: MoveToOpts) => ScreepsReturnCode;
+  }
 
-interface StructureSpawn {
+  interface StructureSpawn {
     attemptSpawning: () => void;
     generateCreepName: () => string;
-    queueCreep: (data: any) => { parts: any; role: any; name: any; data: any; };
+    queueCreep: (data: CreepSpawnData) => ManagerMemorySpawnObject;
     manager: Manager;
-}
+  }
 
-interface Memory {
-    routes: any;
-    stats: any;
+  interface Memory {
+    routes: MemoryRoutes;
+    stats: MemoryStats;
     lastCreepId: number;
     temp: string;
     uuid: number;
-    log: any;
-    manager: Array<ManagerMemory>;
-    empire?: any
-}
+    log: Record<string, unknown>;
+    manager: ManagerMemory[];
+    empire?: MemoryEmpire;
+  }
 
-interface RoomMemory {
-    avoid?: number
-}
+  interface RoomMemory {
+    avoid?: number;
+  }
 
-interface ManagerMemory {
-    creeps: Array<String>;
-    sources: Array<ManagerMemorySources>
-    room: String
-    rooms: Array<String>
-    spawnQueue: Array<ManagerMemorySpawnObject>
-}
-
-interface ManagerMemorySpawnObject {
-    name: string;
-
-}
-
-interface ManagerMemorySources {
-    sourceId: Id<Source>;
-    miners: Array<String>,
-    pos: RoomPosition
-    containerId: Id<StructureContainer> | null
-}
-
-// `global` extension samples
-declare namespace NodeJS {
+  declare namespace NodeJS {
     interface Global {
-        log: any;
+      log: Record<string, unknown>;
     }
-}
+  }
 
-interface String {
+  interface String {
     hashCode(): number;
+  }
 }

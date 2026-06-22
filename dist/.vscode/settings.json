@@ -1,28 +1,36 @@
 {
-    "[javascript]": {
-        "editor.formatOnSave": false
-    },
-    "[json]": {
-        "editor.formatOnSave": true
-    },
-    "[typescript]": {
-        "editor.formatOnSave": false
-    },
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
-    "editor.formatOnSave": true,
-    "editor.renderWhitespace": "boundary",
-    "files.encoding": "utf8",
-    "files.insertFinalNewline": true,
-    "files.trimTrailingWhitespace": true,
-    "search.exclude": {
-        "_book/**": true,
-        ".rpt2_cache/**": true,
-        "dist/**": true,
-        "node_modules/**": true,
-        "typings/**": true
-    },
-    "typescript.tsdk": "./node_modules/typescript/lib",
-    "eslint.enable": true
+  "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  "[json]": {
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.formatOnSave": false
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.renderWhitespace": "boundary",
+  "files.encoding": "utf8",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "search.exclude": {
+    "_book/**": true,
+    ".rpt2_cache/**": true,
+    "dist/**": true,
+    "node_modules/**": true,
+    "typings/**": true
+  },
+  "task.allowAutomaticTasks": "on",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "eslint.enable": true,
+  "eslint.validate": ["javascript", "typescript"],
+  "eslint.packageManager": "pnpm",
+  "eslint.useFlatConfig": true,
+  "eslint.lintTask.enable": true,
+  "eslint.probe": ["javascript", "typescript", "javascriptreact"]
 }

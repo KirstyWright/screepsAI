@@ -1,3 +1,4 @@
+import type { RawSourceMap } from "source-map";
 import { SourceMapConsumer } from "source-map";
 
 export class ErrorMapper {
@@ -6,7 +7,7 @@ export class ErrorMapper {
 
   public static get consumer(): SourceMapConsumer {
     if (this._consumer == null) {
-      this._consumer = new SourceMapConsumer(require("main.js.map"));
+      this._consumer = new SourceMapConsumer(require("main.js.map") as RawSourceMap);
     }
 
     return this._consumer;

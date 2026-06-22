@@ -1,68 +1,64 @@
 import { Task } from "task";
 export class ReserveTask extends Task {
-    type: string;
-    roles: string[];
-    hash: number;
-    target: string;
+  type: string;
+  roles: string[];
+  hash: number;
+  target: string;
 
-    static buildFromMemory(memoryRecord: Record<string, any>) {
-
-        let target = memoryRecord.target;
-        if (!target) {
-            return false;
-        }
-
-        return new ReserveTask(
-            target
-        );
+  static buildFromMemory(memoryRecord: ManagerMemoryTask): ReserveTask | false {
+    const target = memoryRecord.target;
+    if (!target || typeof target !== "string") {
+      return false;
     }
 
-    constructor(target: string) {
-        super()
-        this.type = 'reserve';
-        this.roles = ['claimer'];
-        this.target = target;
-        this.hash = String("reserve" + target).hashCode();
-    }
+    return new ReserveTask(target);
+  }
 
-    storageData(): Record<string, any> {
-        return {
-            hash: this.hash,
-            type: this.type,
-            target: (this.target ? this.target : null)
-        }
-    }
-    run(creep: Creep) {
-        if (creep.pos.roomName != this.target) {
-            creep.travelTo(new RoomPosition(25, 25, this.target));
-        } else {
-            let room = Game.rooms[this.target];
-            if (room && room.controller) {
-                let result = creep.reserveController(room.controller);
-                if (result == ERR_NOT_IN_RANGE) {
-                    creep.travelTo(room.controller);
-                }
-            } else {
-                console.log('OH NO !');
-            }
-        }
-    }
-    isValid() {
-        if (this.target == undefined || this.target == null) {
-            return false;
-        }
-        if (Game.rooms[this.target] && Game.rooms[this.target].controller) {
-            let room = Game.rooms[this.target];
-            if (room.controller) {
-                if (room.controller.my) {
-                    return false;
-                }
-                if (room.controller.reservation && room.controller.reservation.ticksToEnd >= 4999) {
-                    return false;
-                }
+  constructor(target: string) {
+    super();
+    this.type = "reserve";
+    this.roles = ["claimer"];
+    this.target = target;
+    this.hash = String("reserve" + target).hashCode();
+  }
 
-            }
+  storageData(): ManagerMemoryTask {
+    return {
+      hash: this.hash,
+      type: this.type,
+      target: this.target ? this.target : null
+    };
+  }
+  run(creep: Creep) {
+    if (creep.pos.roomName != this.target) {
+      creep.travelTo(new RoomPosition(25, 25, this.target));
+    } else {
+      const room = Game.rooms[this.target];
+      if (room && room.controller) {
+        const result = creep.reserveController(room.controller);
+        if (result == ERR_NOT_IN_RANGE) {
+          creep.travelTo(room.controller);
         }
-        return true;
+      } else {
+        console.log("OH NO !");
+      }
     }
+  }
+  isValid() {
+    if (this.target == undefined || this.target == null) {
+      return false;
+    }
+    if (Game.rooms[this.target] && Game.rooms[this.target].controller) {
+      const room = Game.rooms[this.target];
+      if (room.controller) {
+        if (room.controller.my) {
+          return false;
+        }
+        if (room.controller.reservation && room.controller.reservation.ticksToEnd >= 4999) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 }

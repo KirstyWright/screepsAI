@@ -1,4 +1,3 @@
 export class RoleCmedic {
-    static run(creep: Creep) {
-    }
-};
+  static run(creep: Creep) {}
+}
