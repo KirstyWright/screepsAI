@@ -42,8 +42,8 @@ export class BuildModule {
         }
         if (_.filter(Game.creeps, (creep) => creep.memory.role == 'builder' && creep.room.name == manager.room.name).length >= 1 && this.getCurrentSites(manager).length < 2) {
             if (Game.time % 10 == 0) {
-                this.createRoads(manager);
                 this.buildExtensions(manager);
+                this.createRoads(manager);
             }
         }
     }

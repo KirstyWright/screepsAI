@@ -60,12 +60,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
         Tick.Profiler = null;
         Tick.routes = {}
 
-        if (!Memory.manager || Memory.manager.length == 0) {
-            if (Game.spawns['Spawn1'] == undefined) {
+        // Re-seed when uninitialised OR the managed room is no longer owned/visible.
+        // Memory persists across a respawn, so a stale entry pointing at an old room
+        // (e.g. W1S23) would otherwise crash `new Manager` every tick on this.room.find.
+        if (!Memory.manager || Memory.manager.length == 0 || !Game.rooms[Memory.manager[0].room as string]) {
+            let spawn = Game.spawns['Spawn1'] || Object.values(Game.spawns)[0];
+            if (spawn == undefined) {
                 return;
             }
             Memory.manager = [{
-                "room": Game.spawns['Spawn1'].room.name,
+                "room": spawn.room.name,
                 "sources": [],
                 "rooms": [],
                 "creeps": [],

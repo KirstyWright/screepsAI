@@ -6,20 +6,15 @@ Screeps Typescript Starter is a starting point for a Screeps AI written in Types
 
 You will need:
 
-- [Node.JS](https://nodejs.org/en/download) (10.x || 12.x)
-- A Package Manager ([Yarn](https://yarnpkg.com/en/docs/getting-started) or [npm](https://docs.npmjs.com/getting-started/installing-node))
-- Rollup CLI (Optional, install via `npm install -g rollup`)
+- [Node.JS](https://nodejs.org/en/download) (>= 20)
+- [pnpm](https://pnpm.io/installation) (>= 11) — the project's package manager
 
 Download the latest source [here](https://github.com/screepers/screeps-typescript-starter/archive/master.zip) and extract it to a folder.
 
-Open the folder in your terminal and run your package manager to install the required packages and TypeScript declaration files:
+Open the folder in your terminal and install the required packages and TypeScript declaration files:
 
 ```bash
-# npm
-npm install
-
-# yarn
-yarn
+pnpm install
 ```
 
 Fire up your preferred editor with typescript installed and you are good to go!
@@ -34,7 +29,7 @@ Running `rollup -c` will compile your code and do a "dry run", preparing the cod
 
 You can use `-cw` instead of `-c` to automatically re-run when your source code changes - for example, `rollup -cw --environment DEST:main` will automatically upload your code to the `main` configuration every time your code is changed.
 
-Finally, there are also NPM scripts that serve as aliases for these commands in `package.json` for IDE integration. Running `npm run push-main` is equivalent to `rollup -c --environment DEST:main`, and `npm run watch-sim` is equivalent to `rollup -cw --dest sim`.
+Finally, there are also package scripts that serve as aliases for these commands in `package.json` for IDE integration. Running `pnpm push-main` is equivalent to `rollup -c --environment DEST:main`, and `pnpm watch-sim` is equivalent to `rollup -cw --environment DEST:sim`.
 
 #### Important! To upload code to a private server, you must have [screepsmod-auth](https://github.com/ScreepsMods/screepsmod-auth) installed and configured!
 

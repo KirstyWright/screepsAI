@@ -75,7 +75,7 @@ export class Traveler {
         if (state.stuckCount >= options.stuckValue && Math.random() > .5) {
             options.ignoreCreeps = false;
             options.freshMatrix = true;
-            delete travelData.path;
+            delete (travelData as Partial<TravelData>).path;
         }
 
         // TODO:handle case where creep moved by some other function, but destination is still the same
@@ -86,13 +86,13 @@ export class Traveler {
                 travelData.path += state.destination.getDirectionTo(destination);
                 state.destination = destination;
             } else {
-                delete travelData.path;
+                delete (travelData as Partial<TravelData>).path;
             }
         }
 
         if (options.repath && Math.random() < options.repath) {
             // add some chance that you will find a new path randomly
-            delete travelData.path;
+            delete (travelData as Partial<TravelData>).path;
         }
 
         // pathfinding
@@ -493,7 +493,7 @@ export class Traveler {
     public static addStructuresToMatrix(room: Room, matrix: CostMatrix, roadCost: number): CostMatrix {
 
         let impassibleStructures: Structure[] = [];
-        for (let structure of room.find<Structure>(FIND_STRUCTURES)) {
+        for (let structure of room.find(FIND_STRUCTURES)) {
             if (structure instanceof StructureRampart) {
                 if (!structure.my && !structure.isPublic) {
                     impassibleStructures.push(structure);

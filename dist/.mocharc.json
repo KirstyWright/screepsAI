@@ -1,0 +1,13 @@
+{
+  "require": ["test/setup-mocha.js"],
+  "node-option": ["import=tsx"],
+  "ui": "bdd",
+  "reporter": "spec",
+  "bail": true,
+  "full-trace": true,
+  "recursive": true,
+  "timeout": 5000,
+  "exit": true,
+  "extension": ["ts"],
+  "spec": ["test/unit/**/*.ts"]
+}

@@ -1,0 +1,10 @@
+# pnpm config (single package — no `packages:` list, not a multi-package
+# workspace). pnpm 11 reads the build-script policy from here.
+# esbuild powers tsx (the mocha test runner) and unrs-resolver powers the
+# eslint TypeScript import resolver — both need their native postinstall.
+# bufferutil/utf-8-validate are optional `ws` speedups we intentionally skip.
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+  bufferutil: false
+  utf-8-validate: false

@@ -12,7 +12,7 @@ export class Manager {
     spawners: StructureSpawn[];
     taskManager: TaskManager;
     groupManager: GroupManager;
-    wallStrength: Number = 1000;
+    wallStrength: number = 1000;
 
     constructor(id: number) {
         this.id = id;
@@ -56,7 +56,7 @@ export class Manager {
         if (!this.memory.rooms || this.memory.rooms.length == 0) {
             this.memory.rooms = [];
             let exits = Game.map.describeExits(this.room.name);
-            this.memory.rooms = Object.values(exits);
+            this.memory.rooms = Object.values(exits || {});
             this.memory.rooms.push(this.memory.room);
         }
 
@@ -237,7 +237,7 @@ export class Manager {
     }
 
 
-    findInRooms<K extends FindConstant>(type: K, opts?: FilterOptions<K>): Array<FindTypes[K]> {
+    findInRooms<K extends FindConstant, S extends FindTypes[K] = FindTypes[K]>(type: K, opts?: FilterOptions<FindTypes[K], S>): Array<FindTypes[K]> {
         let results: Array<FindTypes[K]> = [];
         for (let key in this.memory.rooms) {
             let room = Game.rooms[this.memory.rooms[key]];

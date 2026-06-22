@@ -79,7 +79,7 @@ export class TaskManager {
             destination = this.manager.room.storage;
         } else {
             let list = this.manager.room.find(FIND_MY_STRUCTURES, {
-                filter: (structure: StructureExtension | StructureSpawn) => {
+                filter: (structure: AnyOwnedStructure) => {
                     return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                 }
@@ -87,7 +87,7 @@ export class TaskManager {
 
             if (list.length == 0) {
                 let newlist = this.manager.room.find(FIND_STRUCTURES, {
-                    filter: (structure: StructureContainer) => {
+                    filter: (structure: AnyStructure) => {
                         if (structure.structureType != STRUCTURE_CONTAINER) {
                             return false;
                         }
@@ -119,7 +119,7 @@ export class TaskManager {
         // Fill containers
         if (this.manager.room.storage) {
             let containerList = <StructureContainer[]>this.manager.room.find(FIND_STRUCTURES, {
-                filter: (structure: StructureContainer) => {
+                filter: (structure: AnyStructure) => {
                     if (structure.structureType != STRUCTURE_CONTAINER) {
                         return false;
                     }
@@ -208,8 +208,8 @@ export class TaskManager {
         Object.values(this.tasks).forEach(task => {
             // Looks for target attribute on task
             // If present then looks for tasks closest too creep and selects them instead of a random task
-            if ("target" in task &&  task.target.pos && (<RoomPosition>task.target.pos).roomName == creep.room.name) {
-                let pos = (<RoomPosition>task.target.pos);
+            if ("target" in task &&  (task.target as any).pos && ((task.target as any).pos as RoomPosition).roomName == creep.room.name) {
+                let pos = ((task.target as any).pos as RoomPosition);
                 let difference = Math.abs((pos.x - creep.pos.x) + (pos.y - creep.pos.y));
 
                 tempTasks[difference + count] = task;

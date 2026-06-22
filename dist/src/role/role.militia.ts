@@ -41,7 +41,7 @@ export class RoleMilitia {
                 }
             }
             if (!result) {
-                let hostileStructure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+                let hostileStructure: Structure | null = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
                     filter: (structure) => {
                         return structure.structureType === STRUCTURE_TOWER;
                     }

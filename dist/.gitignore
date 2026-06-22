@@ -1,7 +1,6 @@
-# yarn lock file
+# This project uses pnpm; pnpm-lock.yaml is committed.
+# Reject other package managers' lockfiles so they can't sneak in.
 /yarn.lock
-
-# npm lock file (v5.0.0+)
 /package-lock.json
 
 # Ignore basic folders

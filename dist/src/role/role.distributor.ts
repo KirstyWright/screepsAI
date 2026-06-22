@@ -14,7 +14,7 @@ export class RoleDistributor {
                 return;
             }
             var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure: StructureExtension | StructureSpawn) => {
+                filter: (structure: AnyStructure) => {
                     return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
                         structure.energy < structure.energyCapacity;
                 }
@@ -25,7 +25,7 @@ export class RoleDistributor {
                 }
             } else {
                 target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                    filter: (structure: StructureTower) => {
+                    filter: (structure: AnyStructure) => {
                         return (structure.structureType == STRUCTURE_TOWER) &&
                             structure.energy < structure.energyCapacity;
                     }

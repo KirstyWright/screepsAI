@@ -219,7 +219,7 @@ Creep.prototype.getEnergy = function(useContainer?: boolean, useSource?: boolean
         let obj;
 
         obj = {
-            filter: (i: StructureContainer | StructureStorage) => {
+            filter: (i: AnyStructure) => {
                 return (
                     (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store.energy > (['distributor'].includes(this.memory.role) ? 0 : 500)
                 );
@@ -243,7 +243,7 @@ Creep.prototype.getEnergy = function(useContainer?: boolean, useSource?: boolean
                 return this.getEnergy(useContainer, useSource, this.getManagerMemory().room);
             }
             let obj = {
-                filter: (i: StructureSpawn) => {
+                filter: (i: AnyStructure) => {
                     return (
                         (i.structureType == STRUCTURE_SPAWN) && i.store.energy > 100
                     );
