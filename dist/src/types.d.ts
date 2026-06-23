@@ -37,6 +37,8 @@ declare global {
     type: string;
     target?: Id<ConstructionSite> | Id<Structure> | Id<Resource> | Id<Tombstone> | Id<Ruin> | string | null;
     destination?: Id<Structure> | null;
+    siteId?: Id<ConstructionSite>;
+    stagingPos?: { x: number; y: number; roomName: string };
     amount?: number;
     completed?: boolean;
   }

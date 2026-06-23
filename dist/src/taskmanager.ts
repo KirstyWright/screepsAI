@@ -11,6 +11,7 @@ function taskHasTargetPos(task: Task): task is Task & { target: TaskTargetWithPo
 import { BuildTask } from "task.build";
 import { RepairTask } from "task.repair";
 import { CollectTask } from "task.collect";
+import { SupplyTask } from "task.supply";
 import { ReserveTask } from "task.reserve";
 import { Task } from "task";
 import { ScoutTask } from "task.scout";
@@ -19,6 +20,7 @@ type TaskTypeMap = {
   build: BuildTask;
   repair: RepairTask;
   collect: CollectTask;
+  supply: SupplyTask;
   reserve: ReserveTask;
   scout: ScoutTask;
 };
@@ -26,7 +28,7 @@ type TaskTypeMap = {
 
 export class TaskManager {
   manager: Manager;
-  tasks: Record<string, BuildTask | RepairTask | CollectTask | ReserveTask | ScoutTask | Task>;
+  tasks: Record<string, BuildTask | RepairTask | CollectTask | SupplyTask | ReserveTask | ScoutTask | Task>;
   constructor(manager: Manager) {
     this.manager = manager;
     this.tasks = {};
@@ -125,9 +127,8 @@ export class TaskManager {
       }
     }
     if (!destination) {
-      console.log("No destination found for collecting resources");
-
-      return; // Temp but not so temp it seems -_-
+      this.createSupplyTasks(miningContainers);
+      return;
     }
 
     for (let i = 0; i < miningContainers.length; i++) {
@@ -209,6 +210,9 @@ export class TaskManager {
         case "collect":
           task = CollectTask.buildFromMemory(memoryTask);
           break;
+        case "supply":
+          task = SupplyTask.buildFromMemory(memoryTask);
+          break;
         case "reserve":
           task = ReserveTask.buildFromMemory(memoryTask);
           break;
@@ -259,6 +263,38 @@ export class TaskManager {
   }
   completeTask(hash: number | string) {
     delete this.tasks[hash];
+  }
+  createSupplyTasks(miningContainers: Id<StructureContainer>[]) {
+    const sites = this.manager.findInRooms(FIND_MY_CONSTRUCTION_SITES);
+    if (sites.length === 0) {
+      return;
+    }
+
+    const covered = SupplyTask.getActiveSupplyPositions(this.manager);
+
+    for (let i = 0; i < miningContainers.length; i++) {
+      const container = Game.getObjectById(miningContainers[i]);
+      if (!container || container.store.getUsedCapacity(RESOURCE_ENERGY) <= 100) {
+        continue;
+      }
+
+      const site = SupplyTask.pickBestSite(container, sites, covered, this.manager);
+      if (!site) {
+        continue;
+      }
+
+      const stagingPos = SupplyTask.findStagingPos(site);
+      if (!stagingPos) {
+        continue;
+      }
+
+      const energy = container.store.getUsedCapacity(RESOURCE_ENERGY);
+      const task = new SupplyTask(container, site, stagingPos, energy);
+      if (!this.addTaskToQueue(task)) {
+        (this.tasks[task.hash] as SupplyTask).amount = energy;
+      }
+      covered.push({ pos: stagingPos, energy });
+    }
   }
   log(content: string) {
     console.log(content);

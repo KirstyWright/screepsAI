@@ -169,51 +169,19 @@ export class Manager {
     this.groupManager.run();
     this.manageDefenses();
 
-    const builderTasks =
-      this.taskManager.getTasksByType("repair").length + this.taskManager.getTasksByType("build").length;
     const builders = Object.values(this.creeps).filter(creep => creep.memory.role == "builder");
     const upgraders = Object.values(this.creeps).filter(creep => creep.memory.role == "upgrader");
+    const numOfBuildersNeeded = this.getNumOfBuildersNeeded();
+    const numOfUpgradersNeeded = this.getNumOfUpgradersNeeded();
 
-
-    // Sum progress remaining instead of counting tasks
-    const builderWorkTasks = [
-      ...this.taskManager.getTasksByType("build"),
-      ...this.taskManager.getTasksByType("repair"),
-    ];
-    const workRemaining = builderWorkTasks.reduce(
-      (sum, task) => sum + task.getWorkRemaining(),
-      0
-    );
-
-    const WORK_PER_BUILDER = 2500; // tuned constant ≈ one builder's output over ~1000 ticks
-    const numOfBuildersNeeded = Math.max(1, Math.ceil(workRemaining / WORK_PER_BUILDER));
-    let count: number;
-
-    if (numOfBuildersNeeded < builders.length && upgraders.length > 2) {
-      count = 0;
-      Object.values(this.creeps).forEach(creep => {
-        if (creep.memory.role == "upgrader") {
-          if (count <= 2) {
-            count = count + 1;
-            return;
-          }
-          this.log("Converting a upgrader to builder (" + creep.name + ")");
-          creep.memory.role = "builder";
-        }
-      });
-    } else if (builders.length > numOfBuildersNeeded) {
-      count = builders.length;
-      Object.values(this.creeps).forEach(creep => {
-        if (creep.memory.role == "builder") {
-          if (count <= 2) {
-            count = count + 1;
-            return;
-          }
-          this.log("Converting a builder to upgrader (" + creep.name + ")");
-          creep.memory.role = "upgrader";
-          creep.memory.taskHash = null;
-        }
-      });
+    if (numOfBuildersNeeded > builders.length && upgraders.length > numOfUpgradersNeeded) {
+      const spareUpgrader = upgraders[0];
+      if (spareUpgrader) {
+        this.log("Converting an upgrader to builder (" + spareUpgrader.name + ")");
+        spareUpgrader.memory.taskHash = null;
+        spareUpgrader.memory.targetId = null;
+        spareUpgrader.memory.role = "builder";
+      }
     }
     if (this.room.controller && this.room.controller.ticksToDowngrade < 200) {
       // PANIC
@@ -347,5 +315,84 @@ export class Manager {
     this.log("Defense level changing from " + this.memory.variables.defenseLevel + " to " + level);
     this.memory.variables.defenseLevel = level;
     this.memory.variables.defenseLevelModifiedTick = Game.time;
+  }
+
+  getNumOfBuildersNeeded(): number {
+    const builderWorkTasks = [
+      ...this.taskManager.getTasksByType("build"),
+      ...this.taskManager.getTasksByType("repair"),
+    ];
+    const workRemaining = builderWorkTasks.reduce((sum, task) => sum + task.getWorkRemaining(), 0);
+    if (workRemaining === 0) {
+      return 0;
+    }
+
+    const WORK_PER_BUILDER = 2500;
+    return Math.min(this.getMaxBuilders(), Math.ceil(workRemaining / WORK_PER_BUILDER));
+  }
+
+  getMaxBuilders(): number {
+    const rcl = this.room.controller?.level ?? 1;
+    return Math.min(3, 1 + Math.floor(rcl / 3));
+  }
+
+  getNumOfUpgradersNeeded(): number {
+    const rcl = this.room.controller?.level ?? 1;
+    if (rcl >= 6) {
+      return 2;
+    }
+    return 1;
+  }
+
+  getNumOfHaulersNeeded(): number {
+    const minerCount = this.memory.sources.length;
+    if (minerCount <= 1) {
+      return 1;
+    }
+
+    let containerBacklog = 0;
+    for (const source of this.memory.sources) {
+      if (!source.containerId) {
+        continue;
+      }
+      const container = Game.getObjectById(source.containerId);
+      if (container) {
+        containerBacklog += container.store.getUsedCapacity(RESOURCE_ENERGY);
+      }
+    }
+
+    // One hauler can cycle two mining containers; add a second only when backlog is high.
+    if (containerBacklog > 1500) {
+      return Math.min(2, minerCount);
+    }
+    return 1;
+  }
+
+  getEconomyCreepBudget(): number {
+    const rcl = this.room.controller?.level ?? 1;
+    const sourceCount = this.memory.sources.length;
+    let budget = sourceCount + 1 + this.getNumOfUpgradersNeeded() + Math.min(2, Math.floor(rcl / 2));
+    const extensions = this.room.find(FIND_MY_STRUCTURES, {
+      filter: { structureType: STRUCTURE_EXTENSION }
+    }).length;
+    if (extensions > 0) {
+      budget += 1;
+    }
+    return budget;
+  }
+
+  countEconomyCreeps(roles: Record<string, number>): number {
+    return (
+      roles.harvester +
+      roles.miner +
+      roles.hauler +
+      roles.builder +
+      roles.upgrader +
+      roles.distributor
+    );
+  }
+
+  hasSpawnEnergy(room: Room, minimum = 250): boolean {
+    return room.energyAvailable >= minimum;
   }
 }

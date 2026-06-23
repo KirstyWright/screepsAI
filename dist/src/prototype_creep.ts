@@ -180,7 +180,7 @@ Creep.prototype.getEnergy = function (useContainer?: boolean, useSource?: boolea
   }
   if (this.memory.targetId) {
     // Is target valid?
-    const target = Game.getObjectById(this.memory.targetId) as Structure | Resource | Tombstone | Ruin;
+    const target = Game.getObjectById(this.memory.targetId) as Structure | Creep | Resource | Tombstone | Ruin;
     if (!target || !target.pos) {
       this.memory.targetId = null;
       return;
@@ -190,10 +190,15 @@ Creep.prototype.getEnergy = function (useContainer?: boolean, useSource?: boolea
       this.travelTo(target.pos);
     } else {
       let pickup;
-      if ("store" in target) {
-        pickup = this.withdraw(target, RESOURCE_ENERGY);
-      } else if ("amount" in target) {
-        pickup = this.pickup(target);
+      if ("amount" in target) {
+        pickup = this.pickup(target as Resource);
+      } else if ("body" in target) {
+        pickup = (this.withdraw as unknown as (t: Creep, r: ResourceConstant) => ScreepsReturnCode)(
+          target as Creep,
+          RESOURCE_ENERGY
+        );
+      } else if ("store" in target) {
+        pickup = this.withdraw(target as Structure | Tombstone | Ruin, RESOURCE_ENERGY);
       } else {
         this.memory.targetId = null;
         return; // Should never get here as should be picked up by isValid
@@ -208,7 +213,7 @@ Creep.prototype.getEnergy = function (useContainer?: boolean, useSource?: boolea
   // Find possible targets
   // Put them in an array and then find the "best" one
   // Base on distance from creep and how much energy is in the target
-  const targets: { pos: RoomPosition; energy: number; id: Id<Structure> | Id<Resource> }[] = [];
+  const targets: { pos: RoomPosition; energy: number; id: Id<Structure> | Id<Resource> | Id<Creep> }[] = [];
 
   if (useContainer) {
     let obj = {
@@ -236,6 +241,26 @@ Creep.prototype.getEnergy = function (useContainer?: boolean, useSource?: boolea
         });
       }
     }
+  }
+  for (const other of this.room.find(FIND_MY_CREEPS)) {
+    if (other.id === this.id) {
+      continue;
+    }
+    if (other.memory.role !== "hauler" || !other.memory.taskHash) {
+      continue;
+    }
+    if (other.store.getUsedCapacity(RESOURCE_ENERGY) < (this.store.getCapacity() - this.store.getUsedCapacity(RESOURCE_ENERGY) / 2)) {
+      continue;
+    }
+    const task = this.manager.taskManager.tasks[other.memory.taskHash];
+    if (!task || task.type !== "supply") {
+      continue;
+    }
+    targets.push({
+      pos: other.pos,
+      energy: other.store.getUsedCapacity(RESOURCE_ENERGY),
+      id: other.id
+    });
   }
 
   if (container === undefined && useSource) {

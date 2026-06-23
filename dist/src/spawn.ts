@@ -75,71 +75,36 @@ export class SpawnModule {
       }
     }
 
-    // get number of haulers needed from miners
-    if (
-      roles.hauler < roles.miner ||
-      (Spawner.manager.room.storage &&
-        Spawner.manager.taskManager.getTasksByType("collect").length > roles.hauler + 1)
-    ) {
-      if (
-        (Spawner.manager.room.storage && Spawner.manager.room.storage.store.getFreeCapacity(RESOURCE_ENERGY) > 10000) ||
-        !Spawner.manager.room.storage
-      ) {
+    const manager = Spawner.manager;
+    const economyBudget = manager.getEconomyCreepBudget();
+    const economyCount = manager.countEconomyCreeps(roles);
+    const canSpawnEconomy = economyCount < economyBudget;
+    const haulersNeeded = manager.getNumOfHaulersNeeded();
+    const numOfBuildersNeeded = manager.getNumOfBuildersNeeded();
+    const numOfUpgradersNeeded = manager.getNumOfUpgradersNeeded();
+
+    if (canSpawnEconomy && roles.hauler < haulersNeeded) {
+      const storage = manager.room.storage;
+      const storageHasRoom =
+        !storage || storage.store.getFreeCapacity(RESOURCE_ENERGY) > 1000;
+      if (storageHasRoom && manager.hasSpawnEnergy(Spawner.room)) {
         Spawner.queueCreep({
           role: "hauler"
         });
       }
     }
 
-    // minimum of 1 builder & 1 upgrader
-
-    const developmentCreepsCount = roles.builder + roles.upgrader;
-    const maxNo = 8;
-
-    if (Spawner.room && Spawner.room.storage) {
-      if (
-        developmentCreepsCount <
-          Math.min(maxNo, Math.max(1, Math.ceil(Spawner.room.storage.store[RESOURCE_ENERGY] / 20000) - 1)) &&
-        Spawner.manager.memory.spawnQueue.length < 5
-      ) {
+    if (canSpawnEconomy && Spawner.room && manager.hasSpawnEnergy(Spawner.room)) {
+      if (roles.upgrader < numOfUpgradersNeeded) {
         Spawner.queueCreep({
-          role: "builder"
+          role: "upgrader"
         });
-      }
-    } else if (Spawner.room) {
-      if (developmentCreepsCount < 5 && Spawner.room.energyAvailable > 250) {
+      } else if (roles.builder < numOfBuildersNeeded) {
         Spawner.queueCreep({
           role: "builder"
         });
       }
     }
-
-    // if (roles['builder'] < Math.max(1, (
-    //     Spawner.manager.taskManager.getTasksByType('build').length
-    //     + Spawner.manager.taskManager.getTasksByType('repair').length
-    // ) / 10)) {
-    // // if (roles['builder'] < Math.min(1, Spawner.room.find(FIND_CONSTRUCTION_SITES).length / 10)) {
-    //     Spawner.queueCreep({
-    //         role: 'builder'
-    //     });
-    // }
-    // If I have storage then use the proper calculations
-    // if (Spawner.room && Spawner.room.storage) {
-    //     if (
-    //         (roles['upgrader'] < Math.min(5, Math.max(1, Math.ceil(Spawner.room.storage.store[RESOURCE_ENERGY] / 20000) - 1)))
-    //         && Spawner.manager.memory.spawnQueue.length < 5
-    //     ) {
-    //         Spawner.queueCreep({
-    //             role: 'upgrader'
-    //         });
-    //     }
-    // } else if (Spawner.room) {
-    //     if (roles['upgrader'] < 2 && Spawner.room.energyAvailable > 250) {
-    //         Spawner.queueCreep({
-    //             role: 'upgrader'
-    //         });
-    //     }
-    // }
 
     const numberOfExtensions = Spawner.room.find(FIND_MY_STRUCTURES, {
       filter: structure => {
@@ -147,6 +112,7 @@ export class SpawnModule {
       }
     }).length;
     if (
+      canSpawnEconomy &&
       numberOfExtensions > 0 &&
       roles.distributor < Math.max(1, Math.floor(numberOfExtensions / 30)) &&
       roles.hauler > 0
