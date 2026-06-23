@@ -49,7 +49,9 @@ export class BuildModule {
     ) {
       if (Game.time % 10 == 0) {
         this.buildExtensions(manager);
-        // this.createRoads(manager);
+        if (this.howManyExtensionsCanBeBuilt.call(this, manager) <= 0) {
+          this.createRoads(manager);
+        }
       }
     }
   }
@@ -128,17 +130,11 @@ export class BuildModule {
       }
     }
   }
-  static buildExtensions(manager: Manager) {
-    // extensions build
-    const search = manager.room.find(FIND_MY_STRUCTURES, {
-      filter: { structureType: STRUCTURE_SPAWN }
-    });
-    const spawn = search[0];
-    const currentExtensions = manager.room.find(FIND_STRUCTURES, {
-      filter: structure => {
-        return structure.structureType == STRUCTURE_EXTENSION;
-      }
-    });
+
+  static howManyExtensionsCanBeBuilt(manager: Manager) {
+    if (!manager.room.controller) {
+      return 0;
+    }
     const extensionsMap: Record<number, number> = {
       0: 0,
       1: 0,
@@ -150,17 +146,41 @@ export class BuildModule {
       7: 50,
       8: 60
     };
+    const search = manager.room.find(FIND_MY_STRUCTURES, {
+      filter: { structureType: STRUCTURE_SPAWN }
+    });
+    const spawn = search[0];
+    const currentExtensions = manager.room.find(FIND_STRUCTURES, {
+      filter: structure => {
+        return structure.structureType == STRUCTURE_EXTENSION;
+      }
+    });
+    const numberOfExtensionsAvailable = extensionsMap[manager.room.controller.level];
+    if (currentExtensions.length >= numberOfExtensionsAvailable || this.getCurrentSites(manager).length > 2) {
+      return 0;
+    }
+    return numberOfExtensionsAvailable - currentExtensions.length;
+
+  }
+
+  static buildExtensions(manager: Manager) {
+    // extensions build
+    const search = manager.room.find(FIND_MY_STRUCTURES, {
+      filter: { structureType: STRUCTURE_SPAWN }
+    });
+    const spawn = search[0];
+    const currentExtensions = manager.room.find(FIND_STRUCTURES, {
+      filter: structure => {
+        return structure.structureType == STRUCTURE_EXTENSION;
+      }
+    });
     if (!manager.room.controller) {
       return;
     }
-    const numberOfExtensionsAvailable = extensionsMap[manager.room.controller.level];
-    if (currentExtensions.length >= numberOfExtensionsAvailable || this.getCurrentSites(manager).length > 2) {
+    const numberOfExtensionsAvailable = this.howManyExtensionsCanBeBuilt.call(this, manager);
+    if (numberOfExtensionsAvailable <= 0 || this.getCurrentSites(manager).length > 2) {
       return;
     }
-    console.log("Building extensions");
-    console.log(numberOfExtensionsAvailable);
-    console.log(currentExtensions.length);
-    console.log(this.getCurrentSites(manager).length);
     const tiles = manager.room.getTerrain();
     const options = [];
     const comparePos = (spawn.pos.x + 1 + spawn.pos.y) % 2;

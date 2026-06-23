@@ -296,9 +296,6 @@ Creep.prototype.getEnergy = function (useContainer?: boolean, useSource?: boolea
     const bScore = Math.min(b.energy, this.store.getCapacity()) / (pos.getRangeTo(b.pos) + 1);
     return aScore > bScore ? -1 : 1;
   });
-  for (const key in targets) {
-    console.log("Target ", targets[key].id, ' / ', targets[key].energy, ' / ', pos.getRangeTo(targets[key].pos), ' / ', Math.min(targets[key].energy, this.store.getCapacity()) + pos.getRangeTo(targets[key].pos));
-  }
   if (targets.length > 0) {
     this.memory.targetId = targets[0].id;
   }
