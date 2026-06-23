@@ -99,11 +99,8 @@ Creep.prototype.genericRun = function (): boolean {
         }
       }
     }
-
-    // Spawner.manager.memory.rooms
   }
 
-  // <StructureSpawn>
   if (this.idleMovement && this.memory.role != "distributor") {
     const spawns = this.room.find(FIND_MY_SPAWNS);
     for (const key in spawns) {

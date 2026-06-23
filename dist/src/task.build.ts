@@ -59,6 +59,15 @@ export class BuildTask extends Task {
     }
     return true;
   }
+
+
+  getWorkRemaining(): number {
+    return this.target.progressTotal - this.target.progress;
+  }
+
+  getWorkTotal(): number {
+    return this.target.progressTotal;
+  }
 }
 
 // module.exports = BuildTask;

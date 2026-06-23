@@ -15,22 +15,30 @@ import { ReserveTask } from "task.reserve";
 import { Task } from "task";
 import { ScoutTask } from "task.scout";
 
+type TaskTypeMap = {
+  build: BuildTask;
+  repair: RepairTask;
+  collect: CollectTask;
+  reserve: ReserveTask;
+  scout: ScoutTask;
+};
+
+
 export class TaskManager {
   manager: Manager;
   tasks: Record<string, BuildTask | RepairTask | CollectTask | ReserveTask | ScoutTask | Task>;
   constructor(manager: Manager) {
     this.manager = manager;
     this.tasks = {};
-
     this.loadFromMemory();
   }
   finish() {
     this.saveToMemory();
   }
-  getTasksByType(type: string): Task[] {
-    return Object.values(this.tasks).filter(task => {
-      return task.type == type;
-    });
+  getTasksByType<T extends keyof TaskTypeMap>(type: T): TaskTypeMap[T][] {
+    return Object.values(this.tasks).filter(
+      (task): task is TaskTypeMap[T] => task.type === type
+    );
   }
   getNewTasks() {
     // Build tasks
@@ -118,6 +126,7 @@ export class TaskManager {
     }
     if (!destination) {
       console.log("No destination found for collecting resources");
+
       return; // Temp but not so temp it seems -_-
     }
 

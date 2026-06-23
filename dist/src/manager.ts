@@ -173,7 +173,20 @@ export class Manager {
       this.taskManager.getTasksByType("repair").length + this.taskManager.getTasksByType("build").length;
     const builders = Object.values(this.creeps).filter(creep => creep.memory.role == "builder");
     const upgraders = Object.values(this.creeps).filter(creep => creep.memory.role == "upgrader");
-    const numOfBuildersNeeded = Math.ceil(builderTasks / 10);
+
+
+    // Sum progress remaining instead of counting tasks
+    const builderWorkTasks = [
+      ...this.taskManager.getTasksByType("build"),
+      ...this.taskManager.getTasksByType("repair"),
+    ];
+    const workRemaining = builderWorkTasks.reduce(
+      (sum, task) => sum + task.getWorkRemaining(),
+      0
+    );
+
+    const WORK_PER_BUILDER = 2500; // tuned constant ≈ one builder's output over ~1000 ticks
+    const numOfBuildersNeeded = Math.max(1, Math.ceil(workRemaining / WORK_PER_BUILDER));
     let count: number;
 
     if (numOfBuildersNeeded < builders.length && upgraders.length > 2) {

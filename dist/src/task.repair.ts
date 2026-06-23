@@ -66,4 +66,22 @@ export class RepairTask extends Task {
     }
     return false;
   }
+
+  private getHitsTarget(): number {
+    if (
+      this.target.structureType === STRUCTURE_WALL ||
+      this.target.structureType === STRUCTURE_RAMPART
+    ) {
+      return this.manager?.wallStrength ?? this.target.hitsMax;
+    }
+    return this.target.hitsMax;
+  }
+
+  getWorkRemaining(): number {
+    return Math.max(0, this.getHitsTarget() - this.target.hits);
+  }
+
+  getWorkTotal(): number {
+    return this.getWorkRemaining(); // Can't work out how big repair task is atm
+  }
 }
